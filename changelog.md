@@ -5,7 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 ### To Do
-
+- Get rid of second decoupling capacitor
 
 ### Unfinished Ideas
   - Outline of the classes used in controller
@@ -30,6 +30,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
       - Some states have various modes under which they operate. Modes are listed below:
         - Open Window: When in Regulating or On state, a rapid drop in temperature will cause the device to close the valves to save money for a specified duration
         - Dark: When in any state, turns off the RGB LED
+
+## [0.1.2] - 2021-10-17
+### Added
+- First draft of front board completed including
+  - Wide tracks 
+  - JLCPCB track witdth, vias and clearances
+  - Heat sink on ground planes for L293D
+
+## [0.1.1] - 2021-10-16
+### Added
+- Added schematic and PCB layout for front PCB
 
 ## [0.1.0] - 2021-10-16
 ### Added
