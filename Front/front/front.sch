@@ -27,10 +27,10 @@ $EndComp
 Wire Wire Line
 	5350 5050 5350 5150
 $Comp
-L Connector:Conn_01x04_Male J1
+L Connector:Conn_01x04_Male J2
 U 1 1 616B3A80
 P 6400 3850
-F 0 "J1" H 6372 3732 50  0000 R CNN
+F 0 "J2" H 6372 3732 50  0000 R CNN
 F 1 "JST 1mm Connector" H 6372 3823 50  0000 R CNN
 F 2 "Connector_JST:JST_SH_SM04B-SRSS-TB_1x04-1MP_P1.00mm_Horizontal" H 6400 3850 50  0001 C CNN
 F 3 "~" H 6400 3850 50  0001 C CNN
@@ -191,10 +191,10 @@ Wire Wire Line
 Wire Wire Line
 	4200 1950 5050 1950
 $Comp
-L Connector:Conn_01x10_Male J2
+L Connector:Conn_01x10_Male J1
 U 1 1 616DA38A
 P 8750 4000
-F 0 "J2" H 8722 3882 50  0000 R CNN
+F 0 "J1" H 8722 3882 50  0000 R CNN
 F 1 "Conn_01x10_Male" H 8722 3973 50  0000 R CNN
 F 2 "Connector_PinHeader_2.54mm:PinHeader_1x10_P2.54mm_Vertical" H 8750 4000 50  0001 C CNN
 F 3 "~" H 8750 4000 50  0001 C CNN
