@@ -31,6 +31,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
         - Open Window: When in Regulating or On state, a rapid drop in temperature will cause the device to close the valves to save money for a specified duration
         - Dark: When in any state, turns off the RGB LED
 
+## [0.1.4] - 2021-10-19
+### Added
+- Side board
+- Sent off for front and side boards v1.0
+
 ## [0.1.3] - 2021-10-18
 ### Added
 - Extra NPTH for front cover on front board
