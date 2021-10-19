@@ -1,41 +1,44 @@
 // This #include statement was automatically added by the Particle IDE.
+#include "fsm.h"
+#include "states.h"
 #include "valve.h"
+#include "temperature.h"
 
-Valve* v;
+FSM* fsm;
 
 void setup() {
     
-    RGB.control(true);
+    fsm = new FSM();
     
-    RGB.color(255, 128, 0);
+    fsm->start();
     
-    v = new Valve(D1, D2, D3, D4, A0, A1, D0);
     
-    RGB.color(255, 255, 255);
+    Particle.function("open", api_open);
+    Particle.function("close", api_close);
     
-    Particle.function("set_position", api_set);
-    Particle.function("get_position", api_get);
-    Particle.function("get_max", api_max);
+    Particle.function("test", api_test);
     
     
 }
 
-int api_set(String blocks) {
+int api_open(String blocks) {
     
-    return v->setPosition(blocks.toInt());
+    return fsm->open_valve();
     
-}
-
-int api_get(String arg) {
     
-    return v->position();
     
 }
 
-int api_max(String arg) {
+int api_close(String blocks) {
     
-    return v->max_position();
+    return fsm->close_valve();
     
+    
+    
+}
+
+int api_test(String input) {
+    return -1;
 }
 
 

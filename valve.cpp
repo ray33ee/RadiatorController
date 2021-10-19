@@ -1,6 +1,6 @@
 #include "valve.h"
 
-Valve::Valve(pin_t a1, int a2, int b1, int b2, int p1, int p2, int enable) {
+Valve::Valve(/*pin_t a1, int a2, int b1, int b2, int p1, int p2, int enable*/) {
     
     /* Initialise pins */
     
@@ -17,13 +17,13 @@ Valve::Valve(pin_t a1, int a2, int b1, int b2, int p1, int p2, int enable) {
     //Start the system deenergised
     deenergise();
     
-    _a1 = a1;
+    /*_a1 = a1;
     _a2 = a2;
     _b1 = b1;
     _b2 = b2;
     _p1 = p1;
     _p2 = p2;
-    _enable = enable;
+    _enable = enable;*/
     
     /* Startup sequence */
     
@@ -38,9 +38,6 @@ Valve::Valve(pin_t a1, int a2, int b1, int b2, int p1, int p2, int enable) {
     
     //This position is the new maximum
     _max_position = position();
-    
-    //Return to position zero. This line is not strictly needed as the FSM will set the position after startup
-    setPosition(0);
     
 }
 
@@ -164,8 +161,13 @@ int Valve::max_position() const {
     return _max_position;
 }
 
+int Valve::open_valve() {
+    return setPosition(0);
+}
 
-
+int Valve::close_valve() {
+    return setPosition(_max_position);
+}
 
 
 

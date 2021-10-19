@@ -5,7 +5,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 ### To Do
-- Get rid of second decoupling capacitor
 
 ### Unfinished Ideas
   - Outline of the classes used in controller
@@ -30,6 +29,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
       - Some states have various modes under which they operate. Modes are listed below:
         - Open Window: When in Regulating or On state, a rapid drop in temperature will cause the device to close the valves to save money for a specified duration
         - Dark: When in any state, turns off the RGB LED
+
+## [0.1.5] - 2021-10-19
+### Added
+- Extra pin to connector J1 on side board for push button pin
+- Pins for RGB LEDs on J1 side board for push button pin
+- Schematic for top PCB
+- Basic FSM skeleton
+- Startup state for FSM
+- TemperatureSensor  base class
+
+### Changed
+- Moved high current pins to outside of connector on J1 side board
+- Move Side J1 header down
 
 ## [0.1.4] - 2021-10-19
 ### Added

@@ -1,3 +1,6 @@
+#ifndef VALVE_H
+#define VALVE_H
+
 #include "Particle.h"
 
 //Controls low level functions of the motor and exposes functions to set the position. THis class will
@@ -23,19 +26,19 @@ private:
     
     /* Pin definitions */
     
-    // Coil A
+    // Coil A pin definitions
     int _a1;
     int _a2;
     
-    // Coil B
+    // Coil B pin definitions
     int _b1;
     int _b2;
     
-    // Analog differential pair
+    // Analog differential pair pin definitions
     int _p1;
     int _p2;
     
-    //Motor Enable
+    //Motor Enable pin definition
     int _enable;
     
     /* State variables */
@@ -67,7 +70,7 @@ private:
     
 public:
     
-    Valve(pin_t a1, int a2, int b1, int b2, int p1, int p2, int enable);
+    Valve(/*pin_t a1, int a2, int b1, int b2, int p1, int p2, int enable*/);
     
     /* High level functions */
     
@@ -79,6 +82,10 @@ public:
     
     //Return the current posision
     int max_position() const;
+    
+    int open_valve();
+    
+    int close_valve();
     
 };
 
@@ -124,3 +131,4 @@ public:
 
 
 
+#endif
