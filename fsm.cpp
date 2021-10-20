@@ -1,10 +1,15 @@
 #include "fsm.h"
 #include "valve.h"
 
+
+//Uncomment this line to enable debugging options
+#define __DEBUG__
+
 FSM::FSM() {
     current = nullptr;
     previous = nullptr;
     v = nullptr;
+    rgb = new PhotonRGB();
 }
     
 /* FSM functions */
@@ -57,6 +62,8 @@ void FSM::revert() {
     
 //Call this function within the main loop, passing the time elapsed since the last call
 void FSM::update(int elapsed) {
+    
+    current->led_update(elapsed);
     current->update(this, elapsed);
 }
 
@@ -64,13 +71,21 @@ void FSM::update(int elapsed) {
 
 //Initialise LED
 void FSM::init_led() {
-    RGB.control(true);
+    
+    rgb->init();
 }
 
 //Set colour
 void FSM::set_led_colour(int r, int g, int b) {
     
-    RGB.color(r, g, b);
+    rgb->color(r, g, b);
+    
+}
+
+//Enable or disable the led
+void FSM::set_led_enabled(bool e) {
+    
+    rgb->enable(e);
     
 }
 
@@ -96,3 +111,36 @@ int FSM::close_valve() {
     return v->close_valve();
     
 }
+
+#ifdef __DEBUG__
+int FSM::position() {
+    return v->position();
+}
+
+int FSM::max_position() {
+    return v->max_position();
+}
+
+int FSM::current_code() {
+    return current->code();
+}
+#endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

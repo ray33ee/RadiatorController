@@ -16,19 +16,32 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
       - Offset temperature
       - Boost time
     - Temperature: Responsible for taking the temperature
-    - Cloud: Exposes functionality to the Photon cloud api for controlling the FSM
-    - FSM: Finite state machine responsible for managing all aspects of the controller. Also controlls the RGB LED and listens to the switch and encoder
-      - FSM states:
-        - Regulating: Valve is regulated to control the temperature 
-        - Off: Valve is closed
-        - On: Valve is open
-        - Descale: Valve is fully opened the fully closed to descale
-        - Boost: Valve is opened for a specified duration
-        - Startup: Initiating the valve startup sequence
-        - Shutdown: Shutdown sequence 
-      - Some states have various modes under which they operate. Modes are listed below:
-        - Open Window: When in Regulating or On state, a rapid drop in temperature will cause the device to close the valves to save money for a specified duration
-        - Dark: When in any state, turns off the RGB LED
+    - LED: Sets up the LED pins, controls the colour, and offers a 'Dark' mode that disables the LED
+  - FSM: Finite state machine responsible for managing all aspects of the controller. Also controlls the RGB LED and listens to the switch and encoder
+    - FSM states:
+      - Regulating: Valve is regulated to control the temperature 
+      - Off: Valve is closed. Will not save previous state
+      - On: Valve is open. Will not save previous state
+      - Descale: Valve is fully opened the fully closed to descale
+      - Boost: Valve is opened for a specified duration. Must save previous state to return to
+      - Startup: Initiating the valve startup sequence
+      - Safe: Put the motor in a safe position for removing/installing device 
+      - Open Window: A rapid drop in temperature will cause the device to close the valves to save money for a specified duration. Must save previous state to return to
+
+## [0.1.6] - 2021-10-20
+### Added
+- On, Off, Startup and Shutdown states
+- States can now be loaded via Cloud API functions
+- Each state now has an `led_update` function called by `FSM::update` which can be used to create more interesting custom LED effects
+- Dedicated LED base class for FSM
+- `__DEBUG__` define to enable and disable extra code for debugging and diagnostics
+- Main loop() calculates the duration between loop calls and passes it to `FSM::update`
+
+### Changed
+- `Shutdown` state renamed to `Safe` reflecting its true purpose, to move the motor to a safe position to allow removal/installation of the unit
+
+### Removed
+- Idle state removed as it doesn't do anything
 
 ## [0.1.5] - 2021-10-19
 ### Added

@@ -4,10 +4,14 @@
 #include "states.h"
 #include "temperature.h"
 #include "valve.h"
-#include "Particle.h"
+#include "led.h"
+
+//Uncomment this line to enable debugging options
+#define __DEBUG__
 
 class State;
 class Valve;
+class RGB_Base;
 
 class FSM {
 private:
@@ -16,6 +20,8 @@ private:
     State* previous;
     
     Valve* v;
+    
+    RGB_Base* rgb;
     
 public:
 
@@ -43,6 +49,8 @@ public:
     //Set colour
     void set_led_colour(int r, int g, int b);
     
+    void set_led_enabled(bool e);
+    
     /* Valve functions */
     
     //Valve startup
@@ -53,6 +61,17 @@ public:
     
     //Fully close valve
     int close_valve();
+    
+#ifdef __DEBUG__
+    //Get the position of the motor
+    int position();
+    
+    //Get the max position of the motor
+    int max_position();
+    
+    //Get the state code of the current state
+    int current_code();
+#endif
     
 };
 

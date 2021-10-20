@@ -1,6 +1,9 @@
 #ifndef TEMPERATURE_SENSOR_H
 #define TEMPERATURE_SENSOR_H
 
+//Uncomment this line to enable debugging options
+#define __DEBUG__
+
 class TemperatureSensor {
     
 public:

@@ -3,6 +3,9 @@
 
 #include "Particle.h"
 
+//Uncomment this line to enable debugging options
+#define __DEBUG__
+
 //Controls low level functions of the motor and exposes functions to set the position. THis class will
 // - Handle the startup sequence to learn where zero position (plunger fully retracted) and max position (valve fully closed)
 // - Move the plunger to a specified position 

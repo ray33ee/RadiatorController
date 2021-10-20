@@ -1,5 +1,8 @@
 #include "valve.h"
 
+//Uncomment this line to enable debugging options
+#define __DEBUG__
+
 Valve::Valve(/*pin_t a1, int a2, int b1, int b2, int p1, int p2, int enable*/) {
     
     /* Initialise pins */
