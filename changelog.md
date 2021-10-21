@@ -5,28 +5,32 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 ### To Do
+  - Add `Attributes` class to handle the schedule (Loads the schedule from EEPROM on startup, save the schedule to EEPROM when schedule changes, must fit 7 days of 15-minute chunks in 2048  bytes of EEPROM) and other data stored in the EEPROM suchg as
+    - Schedule
+    - Descale time
+    - Open window duration
+    - Offset temperature
+    - Boost time
+  - Add states:
+    - Regulating: Valve is regulated to control the temperature 
+    - Descale: Valve is fully opened the fully closed to descale. Must save previous state to return to
+    - Boost: Valve is opened for a specified duration. Must save previous state to return to
+    - Open Window: A rapid drop in temperature will cause the device to close the valves to save money for a specified duration. Must save previous state to return to
+    - NoValve: This state is entered if no valve is detected (must put motor in safe position) (i.e. if max position is about 60)
 
 ### Unfinished Ideas
-  - Outline of the classes used in controller
-    - Valve: Responsible for configuring the valve and moving the valve to the desired position
-    - Attributes: Handles the schedule (Loads the schedule from EEPROM on startup, save the schedule to EEPROM when schedule changes, must fit 7 days of 15-minute chunks in 2048  bytes of EEPROM) and other data stored in the EEPROM suchg as
-      - Schedule
-      - Descale time
-      - Open window duration
-      - Offset temperature
-      - Boost time
-    - Temperature: Responsible for taking the temperature
-    - LED: Sets up the LED pins, controls the colour, and offers a 'Dark' mode that disables the LED
-  - FSM: Finite state machine responsible for managing all aspects of the controller. Also controlls the RGB LED and listens to the switch and encoder
-    - FSM states:
-      - Regulating: Valve is regulated to control the temperature 
-      - Off: Valve is closed. Will not save previous state
-      - On: Valve is open. Will not save previous state
-      - Descale: Valve is fully opened the fully closed to descale
-      - Boost: Valve is opened for a specified duration. Must save previous state to return to
-      - Startup: Initiating the valve startup sequence
-      - Safe: Put the motor in a safe position for removing/installing device 
-      - Open Window: A rapid drop in temperature will cause the device to close the valves to save money for a specified duration. Must save previous state to return to
+  - The state (not the fsm) should be responsible for storing and restoring previous states
+    - Must recursively check the depth of stored previous states
+
+## [0.1.7] - 2021-10-20
+### Added
+- 10k pullup resistors for I2C added to side board
+- Back solder mask rectangle to ground heat sink on front board, to allow better heat dissipation (an even to attach a heat sink)
+- Complete redesign of top pcb using measurements from Digimizer
+
+### Changed
+- Through holes from micro usb breakout no longer overlap Photon footprint
+- Solder jumper changed from open-open to bridged, the bridge connects the Enabled pin to the `Enable_Controlled` track
 
 ## [0.1.6] - 2021-10-20
 ### Added

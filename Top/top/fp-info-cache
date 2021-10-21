@@ -1,4 +1,4 @@
-19234007278991477
+19235642127361031
 Battery
 BatteryHolder_Bulgin_BX0036_1xC
 Bulgin Battery Holder, BX0036, Battery Type C (https://www.bulgin.com/products/pub/media/bulgin/data/Battery_holders.pdf)
@@ -55374,8 +55374,8 @@ LED_Cree-PLCC4_3.2x2.88mm_CCW_Hand_Solder
 
 
 0
-0
-0
+4
+4
 LED_SMD
 LED_Cree-PLCC4_5x5mm_CW
 5.0mm x 5.0mm PLCC4 LED
@@ -56381,6 +56381,13 @@ MountingHole
 DanfossFrontPanel
 
 
+0
+0
+0
+MountingHole
+GenericMountingHole
+Mounting Hole 2.1mm, no annular
+mounting hole 2.1mm no annular
 0
 0
 0

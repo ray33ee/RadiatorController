@@ -62,12 +62,12 @@ $EndComp
 $Comp
 L Device:R R4
 U 1 1 616B98B9
-P 3800 2400
-F 0 "R4" H 3870 2446 50  0000 L CNN
-F 1 "10k" H 3870 2355 50  0000 L CNN
-F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.30x1.75mm_HandSolder" V 3730 2400 50  0001 C CNN
-F 3 "~" H 3800 2400 50  0001 C CNN
-	1    3800 2400
+P 4200 2400
+F 0 "R4" H 4270 2446 50  0000 L CNN
+F 1 "10k" H 4270 2355 50  0000 L CNN
+F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.30x1.75mm_HandSolder" V 4130 2400 50  0001 C CNN
+F 3 "~" H 4200 2400 50  0001 C CNN
+	1    4200 2400
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
@@ -107,7 +107,7 @@ Wire Wire Line
 Wire Wire Line
 	6150 2450 6000 2450
 Wire Wire Line
-	6450 2450 6450 1950
+	6800 2450 6800 1950
 Connection ~ 5050 1950
 Wire Wire Line
 	5050 1950 5250 1950
@@ -148,12 +148,11 @@ Wire Wire Line
 	6000 2650 6350 2650
 Wire Wire Line
 	6450 2450 6800 2450
-Connection ~ 6450 2450
 Connection ~ 6000 2450
 Wire Wire Line
 	6000 2450 5850 2450
 Wire Wire Line
-	3800 2250 3800 1950
+	4200 2250 4200 1950
 Wire Wire Line
 	4650 3650 4300 3650
 Wire Wire Line
@@ -201,7 +200,7 @@ F 3 "~" H 8750 4000 50  0001 C CNN
 	1    8750 4000
 	-1   0    0    1   
 $EndComp
-Text Label 6550 4850 0    50   ~ 0
+Text Label 7050 4850 2    50   ~ 0
 PushButton1
 Text Label 4350 3650 0    50   ~ 0
 Coil_A1
@@ -211,13 +210,13 @@ Text Label 4350 4250 0    50   ~ 0
 Coil_B1
 Text Label 4350 4450 0    50   ~ 0
 Coil_B2
-Text Label 4200 3250 1    50   ~ 0
+Text Label 3800 2550 3    50   ~ 0
 Enable_Controlled
-Text Label 6050 2150 0    50   ~ 0
+Text Label 6350 2150 2    50   ~ 0
 Diff_P1
-Text Label 6050 2650 0    50   ~ 0
+Text Label 6350 2650 2    50   ~ 0
 Diff_P2
-Text Label 8050 4100 0    50   ~ 0
+Text Label 8000 4100 0    50   ~ 0
 PushButton1
 Wire Wire Line
 	8000 3500 8550 3500
@@ -235,19 +234,19 @@ Wire Wire Line
 	8000 4100 8550 4100
 Wire Wire Line
 	8000 4200 8550 4200
-Text Label 8050 4000 0    50   ~ 0
+Text Label 8000 4000 0    50   ~ 0
 Enable_Controlled
-Text Label 8050 3800 0    50   ~ 0
+Text Label 8000 3800 0    50   ~ 0
 Diff_P2
-Text Label 8050 3900 0    50   ~ 0
+Text Label 8000 3900 0    50   ~ 0
 Diff_P1
-Text Label 8050 3500 0    50   ~ 0
+Text Label 8000 3500 0    50   ~ 0
 Coil_A1
-Text Label 8050 3600 0    50   ~ 0
+Text Label 8000 3600 0    50   ~ 0
 Coil_A2
-Text Label 8050 3700 0    50   ~ 0
+Text Label 8000 3700 0    50   ~ 0
 Coil_B1
-Text Label 8050 4200 0    50   ~ 0
+Text Label 8000 4200 0    50   ~ 0
 Coil_B2
 $Comp
 L power:GND #PWR0105
@@ -275,17 +274,6 @@ Wire Wire Line
 	7750 4300 8550 4300
 Wire Wire Line
 	8350 4400 8550 4400
-$Comp
-L Jumper:SolderJumper_3_Open JP1
-U 1 1 616F3485
-P 4000 3500
-F 0 "JP1" H 4000 3705 50  0000 C CNN
-F 1 "SolderJumper_3_Open" H 4050 3600 50  0000 C CNN
-F 2 "Jumper:SolderJumper-3_P1.3mm_Open_RoundedPad1.0x1.5mm_NumberLabels" H 4000 3500 50  0001 C CNN
-F 3 "~" H 4000 3500 50  0001 C CNN
-	1    4000 3500
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
 	4000 3650 4000 4050
 Wire Wire Line
@@ -371,7 +359,7 @@ Text Label 5750 3950 0    50   ~ 0
 JST_PIN_1
 Text Label 4350 4050 0    50   ~ 0
 Enable
-Text Label 3800 2850 2    50   ~ 0
+Text Label 4200 2550 3    50   ~ 0
 Enable_High
 Wire Wire Line
 	5250 2450 5250 2700
@@ -398,7 +386,7 @@ F 3 "" H 5600 3000 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	3800 2550 3800 3500
+	4200 2550 4200 3500
 Wire Wire Line
 	4650 2700 4650 2200
 Wire Wire Line
@@ -410,11 +398,9 @@ Wire Wire Line
 	5250 2700 5250 3250
 Wire Wire Line
 	5050 2200 5050 3250
-Wire Wire Line
-	3800 1950 4200 1950
 Connection ~ 4200 1950
 Wire Wire Line
-	4200 3500 4200 2550
+	3800 3500 3800 2550
 Text Label 5750 3850 0    50   ~ 0
 JST_PIN_2
 Wire Wire Line
@@ -423,4 +409,18 @@ Text Label 5750 3650 0    50   ~ 0
 JST_PIN_4
 Wire Wire Line
 	5650 3650 6200 3650
+$Comp
+L Jumper:SolderJumper_3_Bridged12 JP1
+U 1 1 61707BB6
+P 4000 3500
+F 0 "JP1" H 4000 3705 50  0000 C CNN
+F 1 "SolderJumper_3_Bridged12" H 4000 3614 50  0000 C CNN
+F 2 "Jumper:SolderJumper-3_P1.3mm_Bridged12_RoundedPad1.0x1.5mm_NumberLabels" H 4000 3500 50  0001 C CNN
+F 3 "~" H 4000 3500 50  0001 C CNN
+	1    4000 3500
+	1    0    0    -1  
+$EndComp
+Connection ~ 6800 2450
+Wire Wire Line
+	6450 1950 6800 1950
 $EndSCHEMATC

@@ -1,4 +1,4 @@
-19229103426044925
+19234007279059235
 Battery
 BatteryHolder_Bulgin_BX0036_1xC
 Bulgin Battery Holder, BX0036, Battery Type C (https://www.bulgin.com/products/pub/media/bulgin/data/Battery_holders.pdf)
@@ -55370,6 +55370,13 @@ LED Cree PLCC-4
 4
 4
 LED_SMD
+LED_Cree-PLCC4_3.2x2.88mm_CCW_Hand_Solder
+
+
+0
+4
+4
+LED_SMD
 LED_Cree-PLCC4_5x5mm_CW
 5.0mm x 5.0mm PLCC4 LED
 LED Cree PLCC-4
@@ -76692,12 +76699,26 @@ Adafruit_Micro_USB_Breakout
 5
 5
 Socket
+Adafruit_Micro_USB_Breakout_copy
+
+
+0
+5
+5
+Socket
 Adafruit_PCF8591
 
 
 0
 12
 12
+Socket
+Compact_Adafruit_Micro_USB_Breakout
+
+
+0
+5
+5
 Socket
 DIP_Socket-14_W4.3_W5.08_W7.62_W10.16_W10.9_3M_214-3339-00-0602J
 3M 14-pin zero insertion force socket, through-hole, row spacing 7.62 mm (300 mils), http://multimedia.3m.com/mws/media/494546O/3mtm-dip-sockets-100-2-54-mm-ts0365.pdf
