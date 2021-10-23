@@ -6,6 +6,7 @@
 /* Startup state - Called once to intiate the peripherals */
 
 void Startup::enter(FSM* fsm) {
+    
     //Setup all the peripherals, LED, pins, schedule, temperature sensor, valve,
     
     //Setup the led then change the colour
@@ -22,6 +23,8 @@ void Startup::enter(FSM* fsm) {
 void Startup::update(FSM* fsm, int elapsed) {
     
     //The startup state does nothing, so we immediately move to the first state.
+    
+    
     fsm->next(new Off());
 }
 
@@ -44,9 +47,9 @@ int Startup::code() {
 
 void On::enter(FSM* fsm) {
     
-    fsm->set_led_colour(255, 35, 0);
-    
     fsm->open_valve();
+    
+    fsm->set_led_colour(255, 35, 0);
     
     
 }
@@ -74,9 +77,9 @@ int On::code() {
 
 void Off::enter(FSM* fsm) {
     
-    fsm->set_led_colour(0, 50, 255);
-    
     fsm->close_valve();
+    
+    fsm->set_led_colour(0, 50, 255);
     
     
 }
@@ -132,8 +135,44 @@ int Safe::code() {
 }
 #endif 
 
+/* Turn the radiator on to warm up for a predefined length of time */
 
+Boost::Boost(int duration) {
+    time_left = duration;
+}
 
+void Boost::move_previous(State* p) {
+    previous = p;
+}
+
+void Boost::enter(FSM* fsm) {
+    
+    fsm->set_led_colour(255, 255, 0);
+    
+    fsm->open_valve();
+    
+}
+
+void Boost::update(FSM* fsm, int elapsed) {
+    if (time_left <= 0) {
+        fsm->revert();
+    }
+    
+    time_left -= elapsed;
+    
+}
+
+void Boost::led_update(int elapsed) {}
+
+void Boost::exit(FSM* fsm) {
+    
+}
+
+#ifdef __DEBUG__
+int Boost::code() {
+    return 20;
+}
+#endif 
 
 
 

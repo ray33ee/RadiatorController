@@ -17,11 +17,17 @@ long start = 0;
 
 void setup() {
     
+    int* test = nullptr;
+    
+    delete test;
+    
     fsm = new FSM();
     
     fsm->start();
     
     Particle.function("set_state", api_state);
+    
+    Particle.function("dark_mode", api_temp_dark);
     
 #ifdef __DEBUG__
     Particle.function("position", api_position);
@@ -36,6 +42,15 @@ void setup() {
 
 int api_test(String input) {
     return -1;
+}
+
+int api_temp_dark(String command) {
+    if (command == "on") {
+        fsm->set_led_enabled(false);
+    } else {
+        fsm->set_led_enabled(true);
+    }
+    return 0;
 }
 
 #ifdef __DEBUG__
@@ -64,6 +79,8 @@ int api_state(String state) {
             fsm->next(new Off());
         } else if (state == "safe") {
             fsm->next(new Safe());
+        } else if (state == "boost") {
+            fsm->next(new Boost(6000));
         } else {
             return -2;
         }

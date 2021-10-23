@@ -7,7 +7,6 @@
 
 FSM::FSM() {
     current = nullptr;
-    previous = nullptr;
     v = nullptr;
     rgb = new PhotonRGB();
 }
@@ -24,40 +23,39 @@ void FSM::next(State* state) {
     //Call the exit function on the current state
     if (current != nullptr)
         current->exit(this);
+        
     
-    //Call the enter function on the new state
+    //Move the current state into the next state (so the next state can restore it if needed)
+    state->move_previous(current);
+
+    //Call the enter function on the new state        
     state->enter(this);
-    
-    if (previous != nullptr)
-        delete previous;
-    
-    //Update the previous state
-    previous = current;
     
     //Update the current state
     current = state;
-    
-    
 }
 
-//Revert to the previous state
+//Advance FSM to the current state's revert state
 void FSM::revert() {
+        
+    //Get the state to revert to
+    State* prev = current->take_previous();
     
-    if (previous != nullptr) {
-    
-        //Call the exit function on the current state
+    //Call the exit function on the current state
+    if (current != nullptr)
         current->exit(this);
         
-        //Call the enter function on the new state
-        previous->enter(this);
-        
-        if (current != nullptr)
-            delete current;
-        
-        current = previous;
-        
-        previous = nullptr;
-    }
+    
+    //Call the enter of the state to revert to
+    prev->enter(this);
+    
+    //Delete the current state. Since we moved the previous state out earlier, this will literally only delete the current state
+    delete current;
+    
+    //Update the current state
+    current = prev;
+    
+    
 }
     
 //Call this function within the main loop, passing the time elapsed since the last call

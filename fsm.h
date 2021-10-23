@@ -17,7 +17,6 @@ class FSM {
 private:
     
     State* current;
-    State* previous;
     
     Valve* v;
     
@@ -35,7 +34,7 @@ public:
     //Advance FSM to a new state
     void next(State* state);
     
-    //Revert to the previous state
+    //Revert to the desired state
     void revert();
     
     //Call this function within the main loop, passing the time elapsed since the last call

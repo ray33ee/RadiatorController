@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 ### To Do
+  - Elongate the D+ and D- SMD pads on the Photon footpring to allow for easier soldering  
   - Add `Attributes` class to handle the schedule (Loads the schedule from EEPROM on startup, save the schedule to EEPROM when schedule changes, must fit 7 days of 15-minute chunks in 2048  bytes of EEPROM) and other data stored in the EEPROM suchg as
     - Schedule
     - Descale time
@@ -15,12 +16,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
     - Regulating: Valve is regulated to control the temperature 
     - Descale: Valve is fully opened the fully closed to descale. Must save previous state to return to
     - Boost: Valve is opened for a specified duration. Must save previous state to return to
+        - Keep track of the time started (store it in the state durint `enter` then keep testing to see if the boost has expired during `update`)
     - Open Window: A rapid drop in temperature will cause the device to close the valves to save money for a specified duration. Must save previous state to return to
     - NoValve: This state is entered if no valve is detected (must put motor in safe position) (i.e. if max position is about 60)
+    - Stuck: This state is entered if there was an issue with startup (max position is about 0)
+  - Prevent state changes during `Startup` and `Safe` state  
 
 ### Unfinished Ideas
   - The state (not the fsm) should be responsible for storing and restoring previous states
     - Must recursively check the depth of stored previous states
+    - When a temporary state is finished it should load its stored restore state into the fsm.
+    - Restore states should be designed to take into consideration that they may be stored/restored at any time.
+    - This allows, for example, the sequence of states: First a Regulate state, then a boost, then a descale.
+        - Note that when the boost state is started,  it should update its stored time left to reflect the time spent descaling
+    - DO NOT call enter on the restored state (but do call exit on the temporary state) since the state isn't really starting, its continuing
+
+## [0.1.8] - 2021-10-21
+### Added
+- `FSM::revert` function added to help restore previous states
+- All three mounting holes in top pcb are the same size 
+
+### Changed
+- Previous state is now stored in the current state, not the FSM
 
 ## [0.1.7] - 2021-10-20
 ### Added
