@@ -1,4 +1,7 @@
 // This #include statement was automatically added by the Particle IDE.
+#include "settings.h"
+
+// This #include statement was automatically added by the Particle IDE.
 #include "led.h"
 
 // This #include statement was automatically added by the Particle IDE.
@@ -41,7 +44,7 @@ void setup() {
 }
 
 int api_test(String input) {
-    return -1;
+    return fsm->attributes.get_entry(input.toInt()).get_state();
 }
 
 int api_temp_dark(String command) {

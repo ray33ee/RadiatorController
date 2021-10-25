@@ -9,6 +9,8 @@
 //Uncomment this line to enable debugging options
 #define __DEBUG__
 
+#include "settings.h"
+
 class State;
 class Valve;
 class RGB_Base;
@@ -22,7 +24,11 @@ private:
     
     RGB_Base* rgb;
     
+    void check_schedule();
+    
 public:
+    
+    Settings attributes;
 
     FSM();
     

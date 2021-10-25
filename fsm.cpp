@@ -1,6 +1,9 @@
 #include "fsm.h"
 #include "valve.h"
 
+#include "Particle.h"
+#include "settings.h"
+#include "states.h"
 
 //Uncomment this line to enable debugging options
 #define __DEBUG__
@@ -9,6 +12,41 @@ FSM::FSM() {
     current = nullptr;
     v = nullptr;
     rgb = new PhotonRGB();
+}
+
+void FSM::check_schedule() {
+    
+    //Get current time, convert to schedule index
+    int quart = Time.minute() / 15;
+    int index = (Time.weekday()-1) * 24 * 4 + Time.hour() * 4 + quart;
+    
+    //Get current entry
+    Entry current_entry = attributes.get_entry(index);
+    
+    //Get state for current index and previous index 
+    //int previous_state = attributes.get_entry(index == 0 ? 671 : index-1).get_state();
+    
+    //If the state has changed in the schedule, then load the new state
+    if (current_entry.get_state() != current->code()) {
+        
+        //If the state is a Regualte state, get the regulation temperature
+        
+        switch (current_entry.get_state()) {
+            case 10:
+                next(new Off());
+                break;
+            case 11:
+                next(new On());
+                break;
+            default:
+                {}
+        }
+        
+        
+    }
+    
+    
+    
 }
     
 /* FSM functions */
@@ -60,6 +98,8 @@ void FSM::revert() {
     
 //Call this function within the main loop, passing the time elapsed since the last call
 void FSM::update(int elapsed) {
+    
+    check_schedule();
     
     current->led_update(elapsed);
     current->update(this, elapsed);

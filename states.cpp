@@ -1,5 +1,7 @@
 #include "states.h"
 
+#include "settings.h"
+
 //Uncomment this line to enable debugging options
 #define __DEBUG__
 
@@ -12,8 +14,12 @@ void Startup::enter(FSM* fsm) {
     //Setup the led then change the colour
     fsm->init_led();
     
-    
     fsm->set_led_colour(255, 255, 0);
+    
+    
+    fsm->attributes.fill_schedule();
+    
+    fsm->attributes.load();
     
     //Setup the valve
     fsm->init_valve();

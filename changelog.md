@@ -5,31 +5,45 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 ### To Do
+
+
+  - IMPORTANT:
+    - Add functionality to FSM to ignore certain state-changing api calls (use this to prevent state changes during `Startup` and `Safe` states) #
+
+
+
+
   - Elongate the D+ and D- SMD pads on the Photon footpring to allow for easier soldering  
-  - Add `Attributes` class to handle the schedule (Loads the schedule from EEPROM on startup, save the schedule to EEPROM when schedule changes, must fit 7 days of 15-minute chunks in 2048  bytes of EEPROM) and other data stored in the EEPROM suchg as
-    - Schedule
-    - Descale time
-    - Open window duration
-    - Offset temperature
-    - Boost time
   - Add states:
     - Regulating: Valve is regulated to control the temperature 
     - Descale: Valve is fully opened the fully closed to descale. Must save previous state to return to
-    - Boost: Valve is opened for a specified duration. Must save previous state to return to
-        - Keep track of the time started (store it in the state durint `enter` then keep testing to see if the boost has expired during `update`)
     - Open Window: A rapid drop in temperature will cause the device to close the valves to save money for a specified duration. Must save previous state to return to
     - NoValve: This state is entered if no valve is detected (must put motor in safe position) (i.e. if max position is about 60)
     - Stuck: This state is entered if there was an issue with startup (max position is about 0)
-  - Prevent state changes during `Startup` and `Safe` state  
+  - Move the three RGB resistors away from the center to allow for more room for the light reflector#
+  - Add a `Panic` state for unrecoverable errors containing an error code and message (flashes LED red)
+  - Create diagnostic api calls (only when compiled with `__DEBUG__` directive) to get 
+      - Uptime
+      - Free memory
+      - Reset reason
+      - Panic reason
+  - When we enter the boost state, check the previous state. If the previous state is also a boost, revert to prevent nested boosts.
+      - Try and test to see if it is a boost state using a cast
+  - Check all the hole sizes in through holes
+  - FSM should include a variable containing the amount of free memory when we start the application 
+  - When `Regulation` state is implemented and a schedule is implemented, On/Off states should be disabled from cloud API
+  - A schedule entry can have its own temperature, or use the default
+  - Create a function in `FSM` to check the schedule, and then use this within `State::update`
+  - Sync time at 00:00 every day
 
 ### Unfinished Ideas
-  - The state (not the fsm) should be responsible for storing and restoring previous states
-    - Must recursively check the depth of stored previous states
-    - When a temporary state is finished it should load its stored restore state into the fsm.
-    - Restore states should be designed to take into consideration that they may be stored/restored at any time.
-    - This allows, for example, the sequence of states: First a Regulate state, then a boost, then a descale.
-        - Note that when the boost state is started,  it should update its stored time left to reflect the time spent descaling
-    - DO NOT call enter on the restored state (but do call exit on the temporary state) since the state isn't really starting, its continuing
+  - Maybe create a `DFU` or `SafeMode` state?
+
+## [0.1.9] - 2021-10-23
+### Added
+- `Settings` class to encapsulate schedule and attributes
+- `Entry` class to represent a single entry in the schedule
+- `PackedTemperature` to store temperature in a compact 8-bit form
 
 ## [0.1.8] - 2021-10-21
 ### Added
