@@ -113,4 +113,18 @@ public:
 #endif 
 };
 
+class Descale: public State {
+private:
+    
+public:
+    void move_previous(State* p);
+    void enter(FSM* fsm);
+    void update(FSM* fsm, int elapsed);
+    void led_update(int elapsed);
+    void exit(FSM* fsm);
+#ifdef __DEBUG__
+    int code();
+#endif 
+};
+
 #endif

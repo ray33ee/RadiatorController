@@ -71,24 +71,28 @@ int api_get_state(String command) {
 #endif
 
 int api_state(String state) {
-    if (state == "") {
-        return -1;
-    } else {
-        if (state == "startup") {
-            fsm->next(new Startup());
-        } else if (state == "on") {
-            fsm->next(new On());
-        } else if (state == "off") {
-            fsm->next(new Off());
-        } else if (state == "safe") {
-            fsm->next(new Safe());
-        } else if (state == "boost") {
-            fsm->next(new Boost(6000));
+    if (fsm->enable_api()) {
+        if (state == "") {
+            return -1;
         } else {
-            return -2;
+            if (state == "startup") {
+                fsm->next(new Startup());
+            } else if (state == "on") {
+                fsm->next(new On());
+            } else if (state == "off") {
+                fsm->next(new Off());
+            } else if (state == "safe") {
+                fsm->next(new Safe());
+            } else if (state == "boost") {
+                fsm->next(new Boost(1000 * 60 * 15));
+            } else {
+                return -2;
+            }
+            
+            return 0;
         }
-        
-        return 0;
+    } else {
+        return -4;
     }
 }
 

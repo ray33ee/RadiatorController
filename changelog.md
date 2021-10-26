@@ -5,14 +5,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 ### To Do
-
-
-  - IMPORTANT:
-    - Add functionality to FSM to ignore certain state-changing api calls (use this to prevent state changes during `Startup` and `Safe` states) #
-
-
-
-
   - Elongate the D+ and D- SMD pads on the Photon footpring to allow for easier soldering  
   - Add states:
     - Regulating: Valve is regulated to control the temperature 
@@ -35,9 +27,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - A schedule entry can have its own temperature, or use the default
   - Create a function in `FSM` to check the schedule, and then use this within `State::update`
   - Sync time at 00:00 every day
+  - Use `onChange` handler to mimic RGB led on external LED
 
 ### Unfinished Ideas
   - Maybe create a `DFU` or `SafeMode` state?
+
+## [0.1.10] - 2021-10-25
+### Added
+- `schedule_state` and `schedule_flags` to allow states to customise exactly what part of the schedule they look at during their `update` cycle
+- Added functionality to `FSM` that states can modify to prevent api calls
+
+### Changed
+- States are now responsible for calling the functions that check the schedule, not the FSM itself 
 
 ## [0.1.9] - 2021-10-23
 ### Added

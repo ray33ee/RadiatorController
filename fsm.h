@@ -24,7 +24,7 @@ private:
     
     RGB_Base* rgb;
     
-    void check_schedule();
+    bool api_enabled;
     
 public:
     
@@ -45,6 +45,16 @@ public:
     
     //Call this function within the main loop, passing the time elapsed since the last call
     void update(int elapsed);
+    
+    void schedule_state();
+    
+    void schedule_flags();
+    
+    /* Cloud API access */
+    
+    void enable_api(bool e);
+    
+    bool enable_api();
     
     /* RGB LED functions */
     

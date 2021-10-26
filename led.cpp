@@ -8,6 +8,8 @@
 void PhotonRGB::init() {
     //Grap control of the led from the OS
     RGB.control(true);
+    
+    RGB.brightness(255);
 }
 
 void PhotonRGB::color(int r, int g, int b) {
@@ -20,4 +22,8 @@ void PhotonRGB::enable(bool e) {
     } else {
         RGB.brightness(0);
     }
+}
+
+bool PhotonRGB::is_enabled() {
+    return RGB.brightness() == 255;
 }

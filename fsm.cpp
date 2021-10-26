@@ -12,19 +12,16 @@ FSM::FSM() {
     current = nullptr;
     v = nullptr;
     rgb = new PhotonRGB();
+    api_enabled = true;
 }
 
-void FSM::check_schedule() {
-    
+void FSM::schedule_state() {
     //Get current time, convert to schedule index
     int quart = Time.minute() / 15;
     int index = (Time.weekday()-1) * 24 * 4 + Time.hour() * 4 + quart;
     
     //Get current entry
     Entry current_entry = attributes.get_entry(index);
-    
-    //Get state for current index and previous index 
-    //int previous_state = attributes.get_entry(index == 0 ? 671 : index-1).get_state();
     
     //If the state has changed in the schedule, then load the new state
     if (current_entry.get_state() != current->code()) {
@@ -44,9 +41,24 @@ void FSM::check_schedule() {
         
         
     }
+}
+
+void FSM::schedule_flags() {
+    //Get current time, convert to schedule index
+    int quart = Time.minute() / 15;
+    int index = (Time.weekday()-1) * 24 * 4 + Time.hour() * 4 + quart;
     
+    //Get current entry
+    Entry current_entry = attributes.get_entry(index);
     
+    if (current_entry.get_descale() && Time.minute() % 15 == 0 && Time.second() == 0) {
+        next(new Descale());
+    }
     
+    //Turn the LED On/Off depending if darkmode is off/on
+    if (current_entry.get_dark_mode() == rgb->is_enabled()) {
+        rgb->enable(!current_entry.get_dark_mode());
+    } 
 }
     
 /* FSM functions */
@@ -99,10 +111,18 @@ void FSM::revert() {
 //Call this function within the main loop, passing the time elapsed since the last call
 void FSM::update(int elapsed) {
     
-    check_schedule();
-    
     current->led_update(elapsed);
     current->update(this, elapsed);
+}
+
+/* Cloud api access */
+
+void FSM::enable_api(bool e) {
+    api_enabled = e;
+}
+
+bool FSM::enable_api() {
+    return api_enabled;
 }
 
 /* RGB LED functions */

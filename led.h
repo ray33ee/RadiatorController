@@ -13,6 +13,8 @@ public:
     
     virtual void enable(bool e) = 0;
     
+    virtual bool is_enabled() = 0;
+    
 };
 
 //Use the Built in RGB LED on the Photon board
@@ -23,6 +25,8 @@ class PhotonRGB: public RGB_Base {
     void color(int r, int g, int b);
     
     void enable(bool e);
+    
+    bool is_enabled();
     
 };
 

@@ -17,8 +17,6 @@ void Startup::enter(FSM* fsm) {
     fsm->set_led_colour(255, 255, 0);
     
     
-    fsm->attributes.fill_schedule();
-    
     fsm->attributes.load();
     
     //Setup the valve
@@ -61,6 +59,8 @@ void On::enter(FSM* fsm) {
 }
 
 void On::update(FSM* fsm, int elapsed) {
+    fsm->schedule_flags();
+    fsm->schedule_state();
     
 }
 
@@ -91,6 +91,8 @@ void Off::enter(FSM* fsm) {
 }
 
 void Off::update(FSM* fsm, int elapsed) {
+    fsm->schedule_flags();
+    fsm->schedule_state();
     
 }
 
@@ -112,6 +114,9 @@ int Off::code() {
 /* Move the motor to a safe position (0) for removal/installation */
 
 void Safe::enter(FSM* fsm) {
+    
+    //Disable api calls 
+    fsm->enable_api(false);
     
     fsm->set_led_colour(100, 100, 100);
     
@@ -153,13 +158,16 @@ void Boost::move_previous(State* p) {
 
 void Boost::enter(FSM* fsm) {
     
-    fsm->set_led_colour(255, 255, 0);
+    fsm->set_led_colour(255, 35, 0);
     
     fsm->open_valve();
     
 }
 
 void Boost::update(FSM* fsm, int elapsed) {
+    
+    fsm->schedule_flags();
+    
     if (time_left <= 0) {
         fsm->revert();
     }
@@ -180,7 +188,33 @@ int Boost::code() {
 }
 #endif 
 
+void Descale::move_previous(State* p) {
+    previous = p;
+}
 
+void Descale::enter(FSM* fsm) {
+    fsm->open_valve();
+    fsm->close_valve();
+}
+
+void Descale::update(FSM* fsm, int elapsed) {
+    fsm->revert();
+}
+
+void Descale::led_update(int elapsed) {
+    
+}
+
+void Descale::exit(FSM* fsm) {
+    
+}
+
+#ifdef __DEBUG__
+int Descale::code() {
+    return 30;
+}
+
+#endif 
 
 
 
