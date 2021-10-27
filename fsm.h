@@ -26,9 +26,13 @@ private:
     
     bool api_enabled;
     
+    bool api_dark; 
+    
 public:
     
     Settings attributes;
+    
+    int initial_free_memory;
 
     FSM();
     
@@ -43,6 +47,8 @@ public:
     //Revert to the desired state
     void revert();
     
+    State* get_current() { return current; }
+    
     //Call this function within the main loop, passing the time elapsed since the last call
     void update(int elapsed);
     
@@ -50,11 +56,15 @@ public:
     
     void schedule_flags();
     
+    void check_open_window();
+    
     /* Cloud API access */
     
     void enable_api(bool e);
     
     bool enable_api();
+    
+    void api_dark_mode(bool e);
     
     /* RGB LED functions */
     
@@ -86,6 +96,17 @@ public:
     
     //Get the state code of the current state
     int current_code();
+    
+    bool descale() {
+        //Get current time, convert to schedule index
+        int quart = Time.minute() / 15;
+        int index = (Time.weekday()-1) * 24 * 4 + Time.hour() * 4 + quart;
+        
+        //Get current entry
+        Entry current_entry = attributes.get_entry(index);
+        
+        return current_entry.get_descale();
+    }
 #endif
     
 };

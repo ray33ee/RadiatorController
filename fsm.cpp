@@ -13,6 +13,7 @@ FSM::FSM() {
     v = nullptr;
     rgb = new PhotonRGB();
     api_enabled = true;
+    api_dark = false;
 }
 
 void FSM::schedule_state() {
@@ -35,6 +36,9 @@ void FSM::schedule_state() {
             case 11:
                 next(new On());
                 break;
+            case 12:
+                next(new Regulate());
+                break;
             default:
                 {}
         }
@@ -51,14 +55,18 @@ void FSM::schedule_flags() {
     //Get current entry
     Entry current_entry = attributes.get_entry(index);
     
-    if (current_entry.get_descale() && Time.minute() % 15 == 0 && Time.second() == 0) {
+    if (current_entry.get_descale() && Time.minute() % 15 == 2 && Time.second() == 0) {
         next(new Descale());
     }
     
     //Turn the LED On/Off depending if darkmode is off/on
-    if (current_entry.get_dark_mode() == rgb->is_enabled()) {
-        rgb->enable(!current_entry.get_dark_mode());
+    if ((current_entry.get_dark_mode() || api_dark) == rgb->is_enabled()) {
+        rgb->enable(!(current_entry.get_dark_mode() || api_dark));
     } 
+}
+    
+void FSM::check_open_window() {
+    //If we detect a rapid drop in temperature, change to the open window state
 }
     
 /* FSM functions */
@@ -77,6 +85,8 @@ void FSM::next(State* state) {
     
     //Move the current state into the next state (so the next state can restore it if needed)
     state->move_previous(current);
+    
+    Particle.publish("state", state->name());
 
     //Call the enter function on the new state        
     state->enter(this);
@@ -94,7 +104,8 @@ void FSM::revert() {
     //Call the exit function on the current state
     if (current != nullptr)
         current->exit(this);
-        
+    
+    Particle.publish("state", prev->name());
     
     //Call the enter of the state to revert to
     prev->enter(this);
@@ -123,6 +134,10 @@ void FSM::enable_api(bool e) {
 
 bool FSM::enable_api() {
     return api_enabled;
+}
+    
+void FSM::api_dark_mode(bool e) {
+    api_dark = e;
 }
 
 /* RGB LED functions */

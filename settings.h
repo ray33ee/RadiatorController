@@ -100,25 +100,46 @@ public:
     
     void fill_schedule() { 
         
-            for (int j = 0; j < 7; ++j)
-            {
-                for (int i = 0; i < 24 * 4; ++i) { 
-                    if (i >= 10*4 && i < 19*4) {
-                        
-                        _schedule[j * 24 * 4 + i] = Entry(false, false, 11, PackedTemperature(20.0f));
-                    } else {
-                        _schedule[j * 24 * 4 + i] = Entry(false, false, 10, PackedTemperature(20.0f));
-                    }
+        for (int j = 0; j < 7; ++j)
+        {
+            for (int i = 0; i < 24 * 4; ++i) { 
+                if (i >= 10*4 && i < 19*4) {
+                    
+                    _schedule[j * 24 * 4 + i] = Entry(false, false, 11, PackedTemperature(20.0f));
+                } else {
+                    _schedule[j * 24 * 4 + i] = Entry(false, false, 10, PackedTemperature(20.0f));
                 }
-            
             }
-            
-            //Save to eeprom
-            save();
+        
+        }
+        
+        //Save to eeprom
+        save();
         //}
     } 
     
     Entry get_entry(int index) { return _schedule[index]; }
+    
+    void fill_schedule(int start, int end, int state, float temperature, bool darkmode, bool descale) {
+        for (int i = start; i < end; ++i) {
+            _schedule[i] = Entry(darkmode, descale, state, PackedTemperature(temperature));
+        }
+        
+        save();
+    }
+    
+    void copy_day(int from, int to) {
+        
+        from = from * 96;
+        to = to * 96;
+        
+        for (int i = 0; i < 96; ++i) {
+            _schedule[to + i] = _schedule[from + i];
+        }
+        
+        save();
+        
+    }
     
     
     void load() {

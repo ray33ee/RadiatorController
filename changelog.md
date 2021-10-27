@@ -6,31 +6,33 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 ### To Do
   - Elongate the D+ and D- SMD pads on the Photon footpring to allow for easier soldering  
-  - Add states:
-    - Regulating: Valve is regulated to control the temperature 
-    - Descale: Valve is fully opened the fully closed to descale. Must save previous state to return to
-    - Open Window: A rapid drop in temperature will cause the device to close the valves to save money for a specified duration. Must save previous state to return to
-    - NoValve: This state is entered if no valve is detected (must put motor in safe position) (i.e. if max position is about 60)
-    - Stuck: This state is entered if there was an issue with startup (max position is about 0)
-  - Move the three RGB resistors away from the center to allow for more room for the light reflector#
-  - Add a `Panic` state for unrecoverable errors containing an error code and message (flashes LED red)
-  - Create diagnostic api calls (only when compiled with `__DEBUG__` directive) to get 
-      - Uptime
-      - Free memory
-      - Reset reason
-      - Panic reason
-  - When we enter the boost state, check the previous state. If the previous state is also a boost, revert to prevent nested boosts.
-      - Try and test to see if it is a boost state using a cast
   - Check all the hole sizes in through holes
-  - FSM should include a variable containing the amount of free memory when we start the application 
-  - When `Regulation` state is implemented and a schedule is implemented, On/Off states should be disabled from cloud API
-  - A schedule entry can have its own temperature, or use the default
-  - Create a function in `FSM` to check the schedule, and then use this within `State::update`
-  - Sync time at 00:00 every day
+  - Move the three RGB resistors away from the center to allow for more room for the light reflector
+  - Add states:
+    - Open Window: A rapid drop in temperature will cause the device to close the valves to save money for a specified duration. Must save previous state to return to
+  - When we enter the boost state, check the previous state. If the previous state is also a boost, revert to prevent nested boosts.
+  - When `Regulation` state is implemented and a schedule is implemented, remove all states from api except safe, descale, boost,
   - Use `onChange` handler to mimic RGB led on external LED
+  - Get the time from a website that takes into account your time zone and any DST instead of particle cloud. Do this every hour via `TCPClient`
+    - Do this using http://worldtimeapi.org/api/ip/IPV4.txt replacing IPV4 with the IP address of the photon (get the public ip via photon api) 
+  - In `Panic` state, flash the LED red `Panic::_code` number of times to indicate error code
 
 ### Unfinished Ideas
   - Maybe create a `DFU` or `SafeMode` state?
+
+## [0.1.11] - 2021-10-26
+### Added
+- Very simple api function added to modify blocks of the schedule and to copy one day to another
+- Panic state (with stored error code and message, and cloud api now gets the panic code if there is one)
+- Invalid initial valve max_position (too large or too small) will initiate a panic
+- Skeleton state `Regulate` added
+- Implemented and tested `Descale` state 
+- Variables added to include various diagnostic information
+- State changes are published to particle api
+- Added short and long boost to api
+
+### Fixed
+- Dark mode issue fixed (Schedule was taking priority over API call, so now we logical or both to get the final dark mode decision)
 
 ## [0.1.10] - 2021-10-25
 ### Added

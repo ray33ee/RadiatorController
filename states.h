@@ -2,6 +2,7 @@
 #define STATES_H
 
 #include "fsm.h"
+#include "Particle.h"
 
 //Uncomment this line to enable debugging options
 #define __DEBUG__
@@ -44,11 +45,10 @@ public:
         delete previous;
     }
     
-#ifdef __DEBUG__
-    
     //Each state must return a code to uniquely identify it (-1 is reserved for no state)
     virtual int code() = 0;
-#endif    
+    
+    virtual String name() = 0;
     
     
 };
@@ -59,9 +59,8 @@ class Startup: public State {
     void update(FSM* fsm, int elapsed);
     void led_update(int elapsed);
     void exit(FSM* fsm);
-#ifdef __DEBUG__
     int code();
-#endif 
+    String name() { return String("Startup"); }
 };
 
 
@@ -70,9 +69,8 @@ class On: public State {
     void update(FSM* fsm, int elapsed);
     void led_update(int elapsed);
     void exit(FSM* fsm);
-#ifdef __DEBUG__
     int code();
-#endif 
+    String name() { return String("On"); }
 };
 
 
@@ -81,9 +79,8 @@ class Off: public State {
     void update(FSM* fsm, int elapsed);
     void led_update(int elapsed);
     void exit(FSM* fsm);
-#ifdef __DEBUG__
     int code();
-#endif 
+    String name() { return String("Off"); }
 };
 
 
@@ -92,9 +89,8 @@ class Safe: public State {
     void update(FSM* fsm, int elapsed);
     void led_update(int elapsed);
     void exit(FSM* fsm);
-#ifdef __DEBUG__
     int code();
-#endif 
+    String name() { return String("Safe"); }
 };
 
 class Boost: public State {
@@ -108,23 +104,49 @@ public:
     void update(FSM* fsm, int elapsed);
     void led_update(int elapsed);
     void exit(FSM* fsm);
-#ifdef __DEBUG__
     int code();
-#endif 
+    String name() { return String("Boost"); }
 };
 
 class Descale: public State {
-private:
-    
 public:
     void move_previous(State* p);
     void enter(FSM* fsm);
     void update(FSM* fsm, int elapsed);
     void led_update(int elapsed);
     void exit(FSM* fsm);
-#ifdef __DEBUG__
     int code();
-#endif 
+    String name() { return String("Descale"); }
 };
+
+
+class Regulate: public State {
+    void enter(FSM* fsm);
+    void update(FSM* fsm, int elapsed);
+    void led_update(int elapsed);
+    void exit(FSM* fsm);
+    int code();
+    String name() { return String("Regulate"); }
+};
+
+
+class Panic: public State {
+private:
+    int _code;
+    String _message;
+    
+public:
+    Panic(int code, String message);
+    int get_code() { return _code; }
+    String get_message() { return _message; }
+    void enter(FSM* fsm);
+    void update(FSM* fsm, int elapsed);
+    void led_update(int elapsed);
+    void exit(FSM* fsm);
+    int code();
+    String name() { return String("Panic"); }
+};
+
+
 
 #endif
