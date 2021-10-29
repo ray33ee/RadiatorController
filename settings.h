@@ -81,10 +81,10 @@ private:
 
     uint32_t _magic;
     uint16_t _ow_duration;
-    uint8_t _offset_temperature;
+    int8_t _offset_temperature;
     uint16_t _short_duration;
     uint16_t _long_duration;
-    uint8_t _default_temperature;
+    PackedTemperature _default_temperature;
     
     Entry _schedule[672];
     
@@ -96,29 +96,13 @@ public:
     float get_offset_temperature() { return _offset_temperature / 10.f; }
     int get_short_boost_duration() { return _short_duration; }
     int get_long_boost_duration() { return _long_duration; }
-    float get_default_temperature() { return _default_temperature; }
-    
-    void fill_schedule() { 
-        
-        for (int j = 0; j < 7; ++j)
-        {
-            for (int i = 0; i < 24 * 4; ++i) { 
-                if (i >= 10*4 && i < 19*4) {
-                    
-                    _schedule[j * 24 * 4 + i] = Entry(false, false, 11, PackedTemperature(20.0f));
-                } else {
-                    _schedule[j * 24 * 4 + i] = Entry(false, false, 10, PackedTemperature(20.0f));
-                }
-            }
-        
-        }
-        
-        //Save to eeprom
-        save();
-        //}
-    } 
+    float get_default_temperature() { return _default_temperature.unpack(35.5f); }
     
     Entry get_entry(int index) { return _schedule[index]; }
+    
+    float get_entry_temperature(int index) {
+        return _schedule[index].get_temperature(get_default_temperature());
+    }
     
     void fill_schedule(int start, int end, int state, float temperature, bool darkmode, bool descale) {
         for (int i = start; i < end; ++i) {

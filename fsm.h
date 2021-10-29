@@ -22,7 +22,8 @@ private:
     
     Valve* v;
     
-    RGB_Base* rgb;
+    //RGB_Base* rgb;
+    LEDStatus led;
     
     bool api_enabled;
     
@@ -31,6 +32,8 @@ private:
 public:
     
     Settings attributes;
+    
+    TemperatureSensor* sensor;
     
     int initial_free_memory;
 
@@ -48,6 +51,8 @@ public:
     void revert();
     
     State* get_current() { return current; }
+    
+    void panic(int code, String message);
     
     //Call this function within the main loop, passing the time elapsed since the last call
     void update(int elapsed);
@@ -69,12 +74,12 @@ public:
     /* RGB LED functions */
     
     //Initialise LED
-    void init_led();
+    //void init_led();
     
     //Set colour
-    void set_led_colour(int r, int g, int b);
+    //void set_led_colour(int r, int g, int b);
     
-    void set_led_enabled(bool e);
+    //void set_led_enabled(bool e);
     
     /* Valve functions */
     

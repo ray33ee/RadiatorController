@@ -4,16 +4,17 @@
 #include "Particle.h"
 #include "settings.h"
 #include "states.h"
+#include "temperature.h"
 
 //Uncomment this line to enable debugging options
 #define __DEBUG__
 
-FSM::FSM() {
+FSM::FSM(): led(LEDStatus()) {
     current = nullptr;
     v = nullptr;
-    rgb = new PhotonRGB();
     api_enabled = true;
     api_dark = false;
+    sensor = new AM2302();
 }
 
 void FSM::schedule_state() {
@@ -32,9 +33,6 @@ void FSM::schedule_state() {
         switch (current_entry.get_state()) {
             case 10:
                 next(new Off());
-                break;
-            case 11:
-                next(new On());
                 break;
             case 12:
                 next(new Regulate());
@@ -60,9 +58,19 @@ void FSM::schedule_flags() {
     }
     
     //Turn the LED On/Off depending if darkmode is off/on
-    if ((current_entry.get_dark_mode() || api_dark) == rgb->is_enabled()) {
-        rgb->enable(!(current_entry.get_dark_mode() || api_dark));
-    } 
+    
+    
+    
+    /*if ((current_entry.get_dark_mode() || api_dark) == led.isOn()) {
+        //rgb->enable(!(current_entry.get_dark_mode() || api_dark));
+        
+        if (led.isOn()) {
+            led.off();
+        } else {
+            led.on();
+        }
+        
+    } */
 }
     
 void FSM::check_open_window() {
@@ -78,6 +86,8 @@ void FSM::start() {
 //Advance FSM to a new state
 void FSM::next(State* state) {
     
+    led.setActive(false);
+    
     //Call the exit function on the current state
     if (current != nullptr)
         current->exit(this);
@@ -91,6 +101,10 @@ void FSM::next(State* state) {
     //Call the enter function on the new state        
     state->enter(this);
     
+    led = state->led_status();
+    
+    led.setActive(true);
+    
     //Update the current state
     current = state;
 }
@@ -101,6 +115,8 @@ void FSM::revert() {
     //Get the state to revert to
     State* prev = current->take_previous();
     
+    led.setActive(false);
+    
     //Call the exit function on the current state
     if (current != nullptr)
         current->exit(this);
@@ -109,6 +125,10 @@ void FSM::revert() {
     
     //Call the enter of the state to revert to
     prev->enter(this);
+    
+    led = prev->led_status();
+    
+    led.setActive(true);
     
     //Delete the current state. Since we moved the previous state out earlier, this will literally only delete the current state
     delete current;
@@ -122,8 +142,11 @@ void FSM::revert() {
 //Call this function within the main loop, passing the time elapsed since the last call
 void FSM::update(int elapsed) {
     
-    current->led_update(elapsed);
     current->update(this, elapsed);
+}
+
+void FSM::panic(int code, String message) {
+    next(new Panic(code, message));
 }
 
 /* Cloud api access */
@@ -138,28 +161,6 @@ bool FSM::enable_api() {
     
 void FSM::api_dark_mode(bool e) {
     api_dark = e;
-}
-
-/* RGB LED functions */
-
-//Initialise LED
-void FSM::init_led() {
-    
-    rgb->init();
-}
-
-//Set colour
-void FSM::set_led_colour(int r, int g, int b) {
-    
-    rgb->color(r, g, b);
-    
-}
-
-//Enable or disable the led
-void FSM::set_led_enabled(bool e) {
-    
-    rgb->enable(e);
-    
 }
 
 /* Valve functions */

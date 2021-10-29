@@ -36,7 +36,7 @@ public:
     virtual void update(FSM* fsm, int elapsed) = 0;
     
     //Called when FSM calls update, used to change LED colour
-    virtual void led_update(int elapsed) = 0;
+    virtual LEDStatus led_status() = 0;
     
     //Called before the state changes to a new one
     virtual void exit(FSM* fsm) = 0;
@@ -57,27 +57,16 @@ public:
 class Startup: public State {
     void enter(FSM* fsm);
     void update(FSM* fsm, int elapsed);
-    void led_update(int elapsed);
+    LEDStatus led_status();
     void exit(FSM* fsm);
     int code();
     String name() { return String("Startup"); }
 };
 
-
-class On: public State {
-    void enter(FSM* fsm);
-    void update(FSM* fsm, int elapsed);
-    void led_update(int elapsed);
-    void exit(FSM* fsm);
-    int code();
-    String name() { return String("On"); }
-};
-
-
 class Off: public State {
     void enter(FSM* fsm);
     void update(FSM* fsm, int elapsed);
-    void led_update(int elapsed);
+    LEDStatus led_status();
     void exit(FSM* fsm);
     int code();
     String name() { return String("Off"); }
@@ -87,7 +76,7 @@ class Off: public State {
 class Safe: public State {
     void enter(FSM* fsm);
     void update(FSM* fsm, int elapsed);
-    void led_update(int elapsed);
+    LEDStatus led_status();
     void exit(FSM* fsm);
     int code();
     String name() { return String("Safe"); }
@@ -102,7 +91,7 @@ public:
     void move_previous(State* p);
     void enter(FSM* fsm);
     void update(FSM* fsm, int elapsed);
-    void led_update(int elapsed);
+    LEDStatus led_status();
     void exit(FSM* fsm);
     int code();
     String name() { return String("Boost"); }
@@ -113,7 +102,7 @@ public:
     void move_previous(State* p);
     void enter(FSM* fsm);
     void update(FSM* fsm, int elapsed);
-    void led_update(int elapsed);
+    LEDStatus led_status();
     void exit(FSM* fsm);
     int code();
     String name() { return String("Descale"); }
@@ -121,9 +110,14 @@ public:
 
 
 class Regulate: public State {
+private:
+    int _last_check;
+    
+public:
+    Regulate();
     void enter(FSM* fsm);
     void update(FSM* fsm, int elapsed);
-    void led_update(int elapsed);
+    LEDStatus led_status();
     void exit(FSM* fsm);
     int code();
     String name() { return String("Regulate"); }
@@ -141,7 +135,7 @@ public:
     String get_message() { return _message; }
     void enter(FSM* fsm);
     void update(FSM* fsm, int elapsed);
-    void led_update(int elapsed);
+    LEDStatus led_status();
     void exit(FSM* fsm);
     int code();
     String name() { return String("Panic"); }

@@ -8,17 +8,40 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Elongate the D+ and D- SMD pads on the Photon footpring to allow for easier soldering  
   - Check all the hole sizes in through holes
   - Move the three RGB resistors away from the center to allow for more room for the light reflector
+  - Avoid using pins D3, D5, D6 and D7
+  - Make through holes in top PCB wider to allow for more wiggle room
+  - Figure out why dark mode is not coming on automatically
   - Add states:
     - Open Window: A rapid drop in temperature will cause the device to close the valves to save money for a specified duration. Must save previous state to return to
   - When we enter the boost state, check the previous state. If the previous state is also a boost, revert to prevent nested boosts.
-  - When `Regulation` state is implemented and a schedule is implemented, remove all states from api except safe, descale, boost,
   - Use `onChange` handler to mimic RGB led on external LED
+    - FIx the darkmode logic
+    - In `Panic` state, flash the LED red `Panic::_code` number of times to indicate error code. Do this with a custom pattern   
+    - Change the priorities so that certain important states show up (not connected to wifi, etc.) 
   - Get the time from a website that takes into account your time zone and any DST instead of particle cloud. Do this every hour via `TCPClient`
-    - Do this using http://worldtimeapi.org/api/ip/IPV4.txt replacing IPV4 with the IP address of the photon (get the public ip via photon api) 
-  - In `Panic` state, flash the LED red `Panic::_code` number of times to indicate error code
+    - Do this using http://worldtimeapi.org/api/ip
+    - Get the time every minute (use System.millis not Time.minute to do this)
+  - Check:
+    - Make sure the attributes are set correctly (coorect types, values, etc.)
+    - Make sure the temperature offset works correctly
 
 ### Unfinished Ideas
   - Maybe create a `DFU` or `SafeMode` state?
+
+## [0.1.12] - 2021-10-27
+### Added
+- `AM2302` class (deriving `TemperatureSensor` class) which contains an algorithm to read the AM2302 temperature sensor
+
+### Changed
+- Now only `Safe`, `Boost`,  and `Descale` can be initiated by api
+- We now use the `LEDStatus` class to control the led
+
+### Fixed
+- `DHT22` temperature taking issues fixed
+
+### Removed
+- `On` state is no longer needed now we have the `Regulate` state
+- Our own custom led class
 
 ## [0.1.11] - 2021-10-26
 ### Added

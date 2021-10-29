@@ -2,9 +2,6 @@
 #include "settings.h"
 
 // This #include statement was automatically added by the Particle IDE.
-#include "led.h"
-
-// This #include statement was automatically added by the Particle IDE.
 #include "fsm.h"
 #include "states.h"
 #include "valve.h"
@@ -32,12 +29,14 @@ void setup() {
     Particle.function("modify_schedule", api_modify_schedule);
     Particle.function("copy_day", api_copy_day);
     
+    Particle.variable("temperature", get_temperature);
     Particle.variable("initial_free_memory", fsm->initial_free_memory);
     Particle.variable("current_free_memory", System.freeMemory);
     Particle.variable("uptime", System.uptime);
     Particle.variable("time", Time.now);
     Particle.variable("reset_reason", reset_reason);
     Particle.variable("reset_reason_data", reset_data);
+    Particle.variable("schedule_state", schedule_state);
     
     Particle.variable("panic_code", get_error_code);
     Particle.variable("panic_message", get_error_message);
@@ -107,6 +106,13 @@ String reset_reason() {
     
 }
 
+int schedule_state() {
+    int quart = Time.minute() / 15;
+    int index = (Time.weekday()-1) * 24 * 4 + Time.hour() * 4 + quart;
+    
+    return fsm->attributes.get_entry(index).get_temperature(1);
+}
+
 int reset_data() {
     return System.resetReasonData();
 }
@@ -137,6 +143,10 @@ String get_error_message() {
         return String("Controller is not in a panic state");
     }
     
+}
+
+float get_temperature() {
+    return fsm->sensor->temperature();
 }
 
 int api_copy_day(String command) {
@@ -229,13 +239,7 @@ int api_state(String state) {
         if (state == "") {
             return -1;
         } else {
-            if (state == "startup") {
-                fsm->next(new Startup());
-            } else if (state == "on") {
-                fsm->next(new On());
-            } else if (state == "off") {
-                fsm->next(new Off());
-            } else if (state == "safe") {
+            if (state == "safe") {
                 fsm->next(new Safe());
             } else if (state == "short") {
                 fsm->next(new Boost(1000 * 60 * 10));

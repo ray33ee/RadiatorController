@@ -11,17 +11,19 @@
 void Startup::enter(FSM* fsm) {
     
     //Setup all the peripherals, LED, pins, schedule, temperature sensor, valve,
+    LEDStatus led = LEDStatus(RGB_COLOR_YELLOW);
     
-    //Setup the led then change the colour
-    fsm->init_led();
-    
-    fsm->set_led_colour(255, 255, 0);
-    
+    led.setActive(true);
     
     fsm->attributes.load();
     
     //Setup the valve
     fsm->init_valve();
+    
+    //Setup the temperature sensor
+    fsm->sensor->open();
+    
+    led.setActive(false);
     
 }
 
@@ -50,8 +52,10 @@ void Startup::exit(FSM* fsm) {
     
 }
 
-void Startup::led_update(int elapsed) {
-    
+
+LEDStatus Startup::led_status() {
+    //STARTUP never updates (it immediately changes to the first state
+    return LEDStatus();
 }
 
 int Startup::code() {
@@ -61,7 +65,7 @@ int Startup::code() {
 
 /* State to open the valve */
 
-void On::enter(FSM* fsm) {
+/*void On::enter(FSM* fsm) {
     
     fsm->open_valve();
     
@@ -88,15 +92,12 @@ void On::led_update(int elapsed) {
 int On::code() {
     
     return 11;
-}
+}*/
 
 /* State to close the valve */
-
 void Off::enter(FSM* fsm) {
     
     fsm->close_valve();
-    
-    fsm->set_led_colour(0, 50, 255);
     
     
 }
@@ -111,8 +112,8 @@ void Off::exit(FSM* fsm) {
     
 }
 
-void Off::led_update(int elapsed) {
-    
+LEDStatus Off::led_status() {
+   return  LEDStatus(0x000032FF, LED_PATTERN_FADE);
 }
 
 int Off::code() {
@@ -127,11 +128,17 @@ void Safe::enter(FSM* fsm) {
     //Disable api calls 
     fsm->enable_api(false);
     
-    fsm->set_led_colour(100, 100, 100);
+    //fsm->set_led_colour(100, 100, 100);
+    
+    LEDStatus led = LEDStatus(RGB_COLOR_WHITE);
+    
+    led.setActive(true);
     
     fsm->open_valve();
     
-    fsm->set_led_colour(30, 30, 30);
+    led.setActive(false);
+    
+    //fsm->set_led_colour(30, 30, 30);
     
     
 }
@@ -144,8 +151,8 @@ void Safe::exit(FSM* fsm) {
     
 }
 
-void Safe::led_update(int elapsed) {
-    
+LEDStatus Safe::led_status() {
+    return LEDStatus(RGB_COLOR_GRAY, LED_PATTERN_FADE);
 }
 
 int Safe::code() {
@@ -164,8 +171,7 @@ void Boost::move_previous(State* p) {
 }
 
 void Boost::enter(FSM* fsm) {
-    
-    fsm->set_led_colour(255, 35, 0);
+
     
     fsm->open_valve();
     
@@ -184,7 +190,9 @@ void Boost::update(FSM* fsm, int elapsed) {
     
 }
 
-void Boost::led_update(int elapsed) {}
+LEDStatus Boost::led_status() {
+    return LEDStatus(0x00ff2300, LED_PATTERN_FADE);
+}
 
 void Boost::exit(FSM* fsm) {
     
@@ -203,18 +211,23 @@ void Descale::move_previous(State* p) {
 void Descale::enter(FSM* fsm) {
     
     
-    fsm->set_led_colour(0, 255, 0);
+    LEDStatus led = LEDStatus(RGB_COLOR_GREEN);
+    
+    led.setActive(true);
     
     fsm->open_valve();
     fsm->close_valve();
+    
+    led.setActive(false);
 }
 
 void Descale::update(FSM* fsm, int elapsed) {
     fsm->revert();
 }
 
-void Descale::led_update(int elapsed) {
-    
+LEDStatus Descale::led_status() {
+    //DESCALE never updates (it reverts immediately during first update) so this led status does nothing
+    return LEDStatus();
 }
 
 void Descale::exit(FSM* fsm) {
@@ -227,6 +240,10 @@ int Descale::code() {
 
 /* Automatically regulate the temperature */
 
+Regulate::Regulate(): _last_check(0) {
+    
+}
+
 void Regulate::enter(FSM* fsm) {
     
 }
@@ -236,10 +253,31 @@ void Regulate::update(FSM* fsm, int elapsed) {
     fsm->schedule_state();
     fsm->check_open_window();
     
+    
+    
+    if (System.millis() - _last_check > 10000) {
+        int quart = Time.minute() / 15;
+        int index = (Time.weekday()-1) * 24 * 4 + Time.hour() * 4 + quart;
+        
+        float temperature = fsm->attributes.get_entry_temperature(index);
+        
+        float actual_temperature = fsm->sensor->temperature() + fsm->attributes.get_offset_temperature();
+        
+        if (actual_temperature < temperature) {
+            fsm->open_valve();
+        } else {
+            fsm->close_valve();
+        }
+        
+        _last_check = System.millis();
+    }
+    
+    
+    
 }
 
-void Regulate::led_update(int elapsed) {
-    
+LEDStatus Regulate::led_status() {
+    return LEDStatus(0x00ff2300, LED_PATTERN_FADE);
 }
 
 void Regulate::exit(FSM* fsm) {
@@ -258,8 +296,6 @@ Panic::Panic(int code, String message): _code(code), _message(message) {
 
 void Panic::enter(FSM* fsm) {
     
-    fsm->set_led_colour(255, 0, 0);
-    
     fsm->enable_api(false);
 }
 
@@ -267,8 +303,8 @@ void Panic::update(FSM* fsm, int elapsed) {
     
 }
 
-void Panic::led_update(int elapsed) {
-    
+LEDStatus Panic::led_status() {
+    return LEDStatus(RGB_COLOR_RED, LED_PATTERN_FADE);
 }
 
 void Panic::exit(FSM* fsm) {
