@@ -21,7 +21,7 @@ void Startup::enter(FSM* fsm) {
     fsm->init_valve();
     
     //Setup the temperature sensor
-    fsm->sensor->open();
+    fsm->sensor_open();
     
     led.setActive(false);
     
@@ -261,7 +261,7 @@ void Regulate::update(FSM* fsm, int elapsed) {
         
         float temperature = fsm->attributes.get_entry_temperature(index);
         
-        float actual_temperature = fsm->sensor->temperature() + fsm->attributes.get_offset_temperature();
+        float actual_temperature = fsm->temperature();
         
         if (actual_temperature < temperature) {
             fsm->open_valve();

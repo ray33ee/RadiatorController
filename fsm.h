@@ -4,7 +4,6 @@
 #include "states.h"
 #include "temperature.h"
 #include "valve.h"
-#include "led.h"
 
 //Uncomment this line to enable debugging options
 #define __DEBUG__
@@ -29,11 +28,11 @@ private:
     
     bool api_dark; 
     
+    TemperatureSensor* sensor;
+    
 public:
     
     Settings attributes;
-    
-    TemperatureSensor* sensor;
     
     int initial_free_memory;
 
@@ -71,15 +70,11 @@ public:
     
     void api_dark_mode(bool e);
     
-    /* RGB LED functions */
+    /* Temperature sensor */
     
-    //Initialise LED
-    //void init_led();
+    void sensor_open();
     
-    //Set colour
-    //void set_led_colour(int r, int g, int b);
-    
-    //void set_led_enabled(bool e);
+    float temperature();
     
     /* Valve functions */
     

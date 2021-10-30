@@ -15,6 +15,9 @@ FSM* fsm;
 // Used to keep track of time between loop() calls
 long start = 0;
 
+//Define custom reset reasons
+const uint32_t RESET_REASON_DATA_API_FUNCTION = 1;
+
 void setup() {
     System.enableFeature(FEATURE_RESET_INFO);
     
@@ -29,6 +32,8 @@ void setup() {
     Particle.function("modify_schedule", api_modify_schedule);
     Particle.function("copy_day", api_copy_day);
     
+    Particle.function("modify_attributes", api_modify_attributes);
+    
     Particle.variable("temperature", get_temperature);
     Particle.variable("initial_free_memory", fsm->initial_free_memory);
     Particle.variable("current_free_memory", System.freeMemory);
@@ -37,14 +42,15 @@ void setup() {
     Particle.variable("reset_reason", reset_reason);
     Particle.variable("reset_reason_data", reset_data);
     Particle.variable("schedule_state", schedule_state);
+    Particle.variable("get_attributes", get_attributes);
     
     Particle.variable("panic_code", get_error_code);
     Particle.variable("panic_message", get_error_message);
     
 #ifdef __DEBUG__
-    Particle.function("position", api_position);
-    Particle.function("max_position", api_max_position);
-    Particle.function("get_state", api_get_state);
+    Particle.variable("position", api_position);
+    Particle.variable("max_position", api_max_position);
+    Particle.variable("get_state", api_get_state);
 #endif
     
     Particle.function("test", api_test);
@@ -131,6 +137,20 @@ int get_error_code() {
     
 }
 
+String get_attributes() {
+    /*int get_open_window_duration() { return _ow_duration; }
+    float get_offset_temperature() { return _offset_temperature / 10.f; }
+    int get_short_boost_duration() { return _short_duration; }
+    int get_long_boost_duration() { return _long_duration; }
+    float get_default_temperature() { return _default_temperature.unpack(35.5f); }*/
+    
+    return String(String(fsm->attributes.get_open_window_duration()) + " " + 
+        String(fsm->attributes.get_offset_temperature()) + " " + 
+        String(fsm->attributes.get_short_boost_duration()) + " " + 
+        String(fsm->attributes.get_long_boost_duration()) + " " + 
+        String(fsm->attributes.get_default_temperature()));
+}
+
 String get_error_message() {
     
     //Dynamic cast doesn't seem to be supported, so we use a dodgy C style cast. We know if the cast is valid because the code for the Panic state is -1
@@ -146,7 +166,7 @@ String get_error_message() {
 }
 
 float get_temperature() {
-    return fsm->sensor->temperature();
+    return fsm->temperature();
 }
 
 int api_copy_day(String command) {
@@ -165,6 +185,54 @@ int api_copy_day(String command) {
     return 0;
 }
 
+int api_modify_attributes(String command) {
+    /*int get_open_window_duration() { return _ow_duration; }
+    float get_offset_temperature() { return _offset_temperature / 10.f; }
+    int get_short_boost_duration() { return _short_duration; }
+    int get_long_boost_duration() { return _long_duration; }
+    float get_default_temperature() { return _default_temperature.unpack(35.5f); }
+    
+    void set_open_window_duration(int value) { _ow_duration = value; }
+    void set_offset_temperature(float value) { _offset_temperature = value * 10.0f; }
+    void set_short_boost_duration(int value) { _short_duration = value; }
+    void set_long_boost_duration(int value) { _long_duration = value; }
+    void set_default_temperature(float value) { _default_temperature = PackedTemperature(value); }
+    */
+    
+    int breaks[4];
+    
+    int count = 0;
+    
+    for (int i = 0; i < command.length(); ++i) {
+        if (command[i] == ' ') {
+            breaks[count] = i;
+            count++;
+        }
+    }
+    
+    int open_window_durtation = command.substring(0, breaks[0]).toInt();
+    
+    float offset_temperature = command.substring(breaks[0] + 1, breaks[1]).toFloat();
+    
+    int short_boost = command.substring(breaks[1] + 1, breaks[2]).toInt();
+    
+    int long_boost = command.substring(breaks[2] + 1, breaks[3]).toInt();
+    
+    float default_temperature = command.substring(breaks[3] + 1).toFloat();
+    
+    
+    fsm->attributes.set_open_window_duration(open_window_durtation);
+    fsm->attributes.set_offset_temperature(offset_temperature);
+    fsm->attributes.set_short_boost_duration(short_boost);
+    fsm->attributes.set_long_boost_duration(long_boost);
+    fsm->attributes.set_default_temperature(default_temperature);
+    
+    fsm->attributes.save();
+    
+    return 0;
+    
+}
+ 
 int api_modify_schedule(String command) {
     //Format: SSS EEE sss tt.t d D
     //SSS three digits 000-671 representing the start time
@@ -206,6 +274,7 @@ int api_test(String input) {
     int quart = Time.minute() / 15;
     int index = (Time.weekday()-1) * 24 * 4 + Time.hour() * 4 + quart;
     
+    return fsm->attributes.get_default_temperature();
     return fsm->descale();
     return index;
     return fsm->attributes.get_entry(input.toInt()).get_state();
@@ -221,15 +290,15 @@ int api_temp_dark(String command) {
 }
 
 #ifdef __DEBUG__
-int api_position(String command) {
+int api_position() {
     return fsm->position();
 }
 
-int api_max_position(String command) {
+int api_max_position() {
     return fsm->max_position();
 }
 
-int api_get_state(String command) {
+int api_get_state() {
     return fsm->current_code();
 }
 #endif
@@ -242,11 +311,13 @@ int api_state(String state) {
             if (state == "safe") {
                 fsm->next(new Safe());
             } else if (state == "short") {
-                fsm->next(new Boost(1000 * 60 * 10));
+                fsm->next(new Boost(fsm->attributes.get_short_boost_duration()));
             } else if (state == "long") {
-                fsm->next(new Boost(1000 * 60 * 30));
+                fsm->next(new Boost(fsm->attributes.get_long_boost_duration()));
             } else if (state == "descale") {
                 fsm->next(new Descale());
+            } else if (state == "reset") {
+                System.reset(RESET_REASON_DATA_API_FUNCTION);
             } else {
                 return -2;
             }

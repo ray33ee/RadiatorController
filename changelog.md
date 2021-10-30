@@ -10,12 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Move the three RGB resistors away from the center to allow for more room for the light reflector
   - Avoid using pins D3, D5, D6 and D7
   - Make through holes in top PCB wider to allow for more wiggle room
-  - Figure out why dark mode is not coming on automatically
   - Add states:
     - Open Window: A rapid drop in temperature will cause the device to close the valves to save money for a specified duration. Must save previous state to return to
   - When we enter the boost state, check the previous state. If the previous state is also a boost, revert to prevent nested boosts.
   - Use `onChange` handler to mimic RGB led on external LED
-    - FIx the darkmode logic
     - In `Panic` state, flash the LED red `Panic::_code` number of times to indicate error code. Do this with a custom pattern   
     - Change the priorities so that certain important states show up (not connected to wifi, etc.) 
   - Get the time from a website that takes into account your time zone and any DST instead of particle cloud. Do this every hour via `TCPClient`
@@ -27,6 +25,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Unfinished Ideas
   - Maybe create a `DFU` or `SafeMode` state?
+
+## [0.1.13] - 2021-10-29
+### Added
+- Dark mode added, but can be overwritten by states that enter dark mode after it has been set AND do not check schedule_flags
+- Soft reset via `set_state` function with custom reason data
+
+### Changed
+- API functions that took no arguments changed to variables
+- Temperature sensor in FSM moved to private, and exposed via public functions. This means that the offset temperature can be added by the FSM
 
 ## [0.1.12] - 2021-10-27
 ### Added

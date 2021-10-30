@@ -61,7 +61,7 @@ void FSM::schedule_flags() {
     
     
     
-    /*if ((current_entry.get_dark_mode() || api_dark) == led.isOn()) {
+    if ((current_entry.get_dark_mode() || api_dark) == led.isOn()) {
         //rgb->enable(!(current_entry.get_dark_mode() || api_dark));
         
         if (led.isOn()) {
@@ -70,7 +70,7 @@ void FSM::schedule_flags() {
             led.on();
         }
         
-    } */
+    } 
 }
     
 void FSM::check_open_window() {
@@ -161,6 +161,16 @@ bool FSM::enable_api() {
     
 void FSM::api_dark_mode(bool e) {
     api_dark = e;
+}
+    
+/* Temperature sensor */
+    
+void FSM::sensor_open() {
+    sensor->open();
+}
+
+float FSM::temperature() {
+    return sensor->temperature() + attributes.get_offset_temperature();
 }
 
 /* Valve functions */
