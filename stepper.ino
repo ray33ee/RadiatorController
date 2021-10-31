@@ -34,14 +34,19 @@ void setup() {
     
     Particle.function("modify_attributes", api_modify_attributes);
     
+    Particle.function("modify_flags", api_modify_flags);
+    
+    Particle.variable("boost_remaining", boost_remaining);
+    
+    Particle.variable("flags", flags);
+    
     Particle.variable("temperature", get_temperature);
     Particle.variable("initial_free_memory", fsm->initial_free_memory);
     Particle.variable("current_free_memory", System.freeMemory);
     Particle.variable("uptime", System.uptime);
-    Particle.variable("time", Time.now);
+    Particle.variable("time", time_string);
     Particle.variable("reset_reason", reset_reason);
     Particle.variable("reset_reason_data", reset_data);
-    Particle.variable("schedule_state", schedule_state);
     Particle.variable("get_attributes", get_attributes);
     
     Particle.variable("panic_code", get_error_code);
@@ -112,11 +117,33 @@ String reset_reason() {
     
 }
 
-int schedule_state() {
-    int quart = Time.minute() / 15;
-    int index = (Time.weekday()-1) * 24 * 4 + Time.hour() * 4 + quart;
+int boost_remaining() {
+    Boost* casted_current = (Boost*)(fsm->get_current());
     
-    return fsm->attributes.get_entry(index).get_temperature(1);
+    if (fsm->current_code() == 20) {
+        return casted_current->remaining();
+    } else {
+        return 0;
+    }
+}
+
+int api_modify_flags(String command) {
+    
+    fsm->attributes.set_flags(command.toInt());
+    
+    
+    fsm->attributes.save();
+    
+    return 0;
+    
+}
+
+int flags() {
+    return fsm->attributes.get_flags();
+}
+
+String time_string() {
+    return String(Time.timeStr());
 }
 
 int reset_data() {
@@ -208,6 +235,10 @@ int api_modify_attributes(String command) {
             breaks[count] = i;
             count++;
         }
+    }
+    
+    if (count != 4) {
+        return -1;
     }
     
     int open_window_durtation = command.substring(0, breaks[0]).toInt();
@@ -311,9 +342,9 @@ int api_state(String state) {
             if (state == "safe") {
                 fsm->next(new Safe());
             } else if (state == "short") {
-                fsm->next(new Boost(fsm->attributes.get_short_boost_duration()));
+                fsm->next(new Boost(fsm->attributes.get_short_boost_duration() * 60000));
             } else if (state == "long") {
-                fsm->next(new Boost(fsm->attributes.get_long_boost_duration()));
+                fsm->next(new Boost(fsm->attributes.get_long_boost_duration() * 60000));
             } else if (state == "descale") {
                 fsm->next(new Descale());
             } else if (state == "reset") {

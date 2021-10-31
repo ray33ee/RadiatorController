@@ -5,26 +5,41 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 ### To Do
-  - Elongate the D+ and D- SMD pads on the Photon footpring to allow for easier soldering  
-  - Check all the hole sizes in through holes
-  - Move the three RGB resistors away from the center to allow for more room for the light reflector
-  - Avoid using pins D3, D5, D6 and D7
-  - Make through holes in top PCB wider to allow for more wiggle room
+  - Recalculate the RGB LED resistors for 3.3v
+  - Double and triple check the header pins all connect properly
+  - Include priority to `LEDStatus` states
+    - Make sure that losing wifi, or losing connection to cloud has high priority and is shown in LED
+    - Only turn off dark mode if the priority of the current state is low
   - Add states:
     - Open Window: A rapid drop in temperature will cause the device to close the valves to save money for a specified duration. Must save previous state to return to
   - When we enter the boost state, check the previous state. If the previous state is also a boost, revert to prevent nested boosts.
   - Use `onChange` handler to mimic RGB led on external LED
     - In `Panic` state, flash the LED red `Panic::_code` number of times to indicate error code. Do this with a custom pattern   
     - Change the priorities so that certain important states show up (not connected to wifi, etc.) 
-  - Get the time from a website that takes into account your time zone and any DST instead of particle cloud. Do this every hour via `TCPClient`
-    - Do this using http://worldtimeapi.org/api/ip
-    - Get the time every minute (use System.millis not Time.minute to do this)
+  
   - Check:
-    - Make sure the attributes are set correctly (coorect types, values, etc.)
     - Make sure the temperature offset works correctly
 
 ### Unfinished Ideas
   - Maybe create a `DFU` or `SafeMode` state?
+  - Get the time from a website that takes into account your time zone and any DST instead of particle cloud. Do this every 10 minutes via `TCPClient`
+      - Do this using http://worldtimeapi.org/api/ip
+
+## [0.1.14] - 2021-10-30
+### Added
+- Temporary way to enable DST by creating a DST flag in the attributes class. This will eventually be replaced by automatically getting the time from worldtimeapi
+- Error handling to `api_modify_attributes` function
+- Variable showing the remaining boost time
+
+### Changed
+- Moved RGB LED resistors further from LED 
+- Through holes for front and side boards on top board have been widened from 1mm to 1.3mm
+- We no longer use pins D3, D5, D6 or D7 as these are briefly used as JTAG at startup and do not start at high impedence. According to the Photon specs:
+`Also beware when using pins D3, D5, D6, and D7 as OUTPUT controlling external devices on Gen 2 devices. After reset, these pins will be briefly taken over for JTAG/SWD, before being restored to the default high-impedance INPUT state during boot.`
+- Time variable now returns time as a string not as UNIX time
+
+### Fixed
+- Boost duration converted from minutes to milliseconds
 
 ## [0.1.13] - 2021-10-29
 ### Added

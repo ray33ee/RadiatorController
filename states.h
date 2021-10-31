@@ -88,6 +88,7 @@ private:
     
 public:
     Boost(int duration);
+    int remaining();
     void move_previous(State* p);
     void enter(FSM* fsm);
     void update(FSM* fsm, int elapsed);

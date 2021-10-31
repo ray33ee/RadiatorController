@@ -142,6 +142,12 @@ void FSM::revert() {
 //Call this function within the main loop, passing the time elapsed since the last call
 void FSM::update(int elapsed) {
     
+    if (attributes._flags.dst) {
+        Time.beginDST();
+    } else {
+        Time.endDST();
+    }
+    
     current->update(this, elapsed);
 }
 

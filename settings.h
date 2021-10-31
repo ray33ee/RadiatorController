@@ -75,11 +75,14 @@ public:
 };
 
 class Settings {
+public: 
+    
+    struct Flags {
+        uint32_t dst : 1;
+    } _flags;
+    
 private:
 
-    const uint32_t MAGIC_CONSTANT =  0xf1765b8d;
-
-    uint32_t _magic;
     uint16_t _ow_duration; //Seconds
     int8_t _offset_temperature;
     uint16_t _short_duration; //Seconds
@@ -97,12 +100,14 @@ public:
     int get_short_boost_duration() { return _short_duration; }
     int get_long_boost_duration() { return _long_duration; }
     float get_default_temperature() { return _default_temperature.unpack(35.5f); }
+    int get_flags() { return *(int*)&_flags; }
     
     void set_open_window_duration(int value) { _ow_duration = value; }
     void set_offset_temperature(float value) { _offset_temperature = value * 10.0f; }
     void set_short_boost_duration(int value) { _short_duration = value; }
     void set_long_boost_duration(int value) { _long_duration = value; }
     void set_default_temperature(float value) { _default_temperature = PackedTemperature(value); }
+    void set_flags(int flags) { *(int*)&_flags = flags; }
     
     Entry get_entry(int index) { return _schedule[index]; }
     

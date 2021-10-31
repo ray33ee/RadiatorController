@@ -190,6 +190,10 @@ void Boost::update(FSM* fsm, int elapsed) {
     
 }
 
+int Boost::remaining() {
+    return time_left / 1000;
+}
+
 LEDStatus Boost::led_status() {
     return LEDStatus(0x00ff2300, LED_PATTERN_FADE);
 }
