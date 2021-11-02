@@ -5,8 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 ### To Do
-  - Recalculate the RGB LED resistors for 3.3v
-  - Double and triple check the header pins all connect properly
+  - Add a little circuit board to put on the stepper motor
   - Include priority to `LEDStatus` states
     - Make sure that losing wifi, or losing connection to cloud has high priority and is shown in LED
     - Only turn off dark mode if the priority of the current state is low
@@ -24,6 +23,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Maybe create a `DFU` or `SafeMode` state?
   - Get the time from a website that takes into account your time zone and any DST instead of particle cloud. Do this every 10 minutes via `TCPClient`
       - Do this using http://worldtimeapi.org/api/ip
+
+## [0.1.15] - 2021-10-31
+### Added
+- We now have start temperature different to stop temperature, to prevent rapid on/off cycles for the motor if the temperature is at the schedule temperature
+- JLC mark to specify part number
+- Added PCB info on back silks
+- Mount holes enlarged to allow for extra wiggle room
+- 2mm pitch mini PCB for mounting on stepper motor added to front board
+- Front mask added to front board
+
+### Changed
+- Elongated D+ and D- (pins 31 and 30) on photon footprint
+- Pads on the enlarged holes have also been enlarged
+- Moved 4-pin temperature sensor header to a more open space
+- Moved 10 pin header on top board to give more room for right angle headers
+- R1 on front board changed to 7mm length
+- Zener diode footprints changed to through hole
 
 ## [0.1.14] - 2021-10-30
 ### Added

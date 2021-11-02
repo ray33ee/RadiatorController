@@ -200,7 +200,7 @@ F 3 "~" H 8750 4000 50  0001 C CNN
 	1    8750 4000
 	-1   0    0    1   
 $EndComp
-Text Label 6550 4850 0    50   ~ 0
+Text Label 7050 4850 2    50   ~ 0
 PushButton1
 Text Label 4350 3650 0    50   ~ 0
 Coil_A1
