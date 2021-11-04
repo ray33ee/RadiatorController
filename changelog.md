@@ -5,24 +5,35 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 ### To Do
-  - Add a little circuit board to put on the stepper motor
-  - Include priority to `LEDStatus` states
-    - Make sure that losing wifi, or losing connection to cloud has high priority and is shown in LED
-    - Only turn off dark mode if the priority of the current state is low
   - Add states:
     - Open Window: A rapid drop in temperature will cause the device to close the valves to save money for a specified duration. Must save previous state to return to
-  - When we enter the boost state, check the previous state. If the previous state is also a boost, revert to prevent nested boosts.
   - Use `onChange` handler to mimic RGB led on external LED
-    - In `Panic` state, flash the LED red `Panic::_code` number of times to indicate error code. Do this with a custom pattern   
-    - Change the priorities so that certain important states show up (not connected to wifi, etc.) 
-  
-  - Check:
-    - Make sure the temperature offset works correctly
 
 ### Unfinished Ideas
-  - Maybe create a `DFU` or `SafeMode` state?
-  - Get the time from a website that takes into account your time zone and any DST instead of particle cloud. Do this every 10 minutes via `TCPClient`
-      - Do this using http://worldtimeapi.org/api/ip
+- 
+
+## [0.1.16] - 2021-11-02
+### Added
+- In `Panic` state, we noq flash the LED red `Panic::_code` number of times to indicate error code
+- A boost will revert if its previous stats is also a boost (this prevents nested boosts)
+- Can now change the default temperature on its own without having to change the other values
+- DFU and safe mode now available via api state change function
+- Cancel command added to end boost states early
+- We now automatically get the DST status for our location from worldtimeapi.org
+- We also automatically sync the time with the cloud every day
+
+### Changed
+- Motor connector board now moved to seperate project
+- 1ohm resistor and zener diodes changed to surface mount
+- Elongated orientation holes on danfoss footprint
+- Checked to make sure our own LED colours and the system colours do not coincide. System led takes priority over application when the priority is the same
+- We stop disable interrupts during timing-critical motor control functions
+- Dark mode is only entered if the priority of the led is less than or equal to normal
+- Custom rgb colours are stored in constants within the state classes
+
+### Removed
+- Removed `Descale` from api state change
+- DST flag removed from flags struct (we now get DST status from worldtimeapi.org)
 
 ## [0.1.15] - 2021-10-31
 ### Added

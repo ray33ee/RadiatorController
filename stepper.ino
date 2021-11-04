@@ -1,16 +1,17 @@
 // This #include statement was automatically added by the Particle IDE.
-#include "settings.h"
-
-// This #include statement was automatically added by the Particle IDE.
 #include "fsm.h"
 #include "states.h"
 #include "valve.h"
 #include "temperature.h"
+#include "dst.h"
+#include "settings.h"
 
 //Uncomment this line to enable debugging options
 #define __DEBUG__
 
 FSM* fsm;
+
+DST dst;
 
 // Used to keep track of time between loop() calls
 long start = 0;
@@ -35,6 +36,8 @@ void setup() {
     Particle.function("modify_attributes", api_modify_attributes);
     
     Particle.function("modify_flags", api_modify_flags);
+    
+    Particle.function("default_temperature", default_temperature);
     
     Particle.variable("boost_remaining", boost_remaining);
     
@@ -117,6 +120,12 @@ String reset_reason() {
     
 }
 
+int default_temperature(String command) {
+    fsm->attributes.set_default_temperature(command.toFloat());
+    fsm->attributes.save();
+    return 0;
+}
+
 int boost_remaining() {
     Boost* casted_current = (Boost*)(fsm->get_current());
     
@@ -143,7 +152,8 @@ int flags() {
 }
 
 String time_string() {
-    return String(Time.timeStr());
+    time_t local = Time.now();
+    return Time.format(local, TIME_FORMAT_DEFAULT);
 }
 
 int reset_data() {
@@ -200,7 +210,7 @@ int api_copy_day(String command) {
     int from = command.substring(0, 1).toInt();
     int to = command.substring(2, 3).toInt();
     
-    if (from >= to || from == to) {
+    if (from == to) {
         return -1;
     }
     
@@ -213,20 +223,8 @@ int api_copy_day(String command) {
 }
 
 int api_modify_attributes(String command) {
-    /*int get_open_window_duration() { return _ow_duration; }
-    float get_offset_temperature() { return _offset_temperature / 10.f; }
-    int get_short_boost_duration() { return _short_duration; }
-    int get_long_boost_duration() { return _long_duration; }
-    float get_default_temperature() { return _default_temperature.unpack(35.5f); }
     
-    void set_open_window_duration(int value) { _ow_duration = value; }
-    void set_offset_temperature(float value) { _offset_temperature = value * 10.0f; }
-    void set_short_boost_duration(int value) { _short_duration = value; }
-    void set_long_boost_duration(int value) { _long_duration = value; }
-    void set_default_temperature(float value) { _default_temperature = PackedTemperature(value); }
-    */
-    
-    int breaks[4];
+    int breaks[3];
     
     int count = 0;
     
@@ -237,7 +235,7 @@ int api_modify_attributes(String command) {
         }
     }
     
-    if (count != 4) {
+    if (count != 3) {
         return -1;
     }
     
@@ -249,14 +247,12 @@ int api_modify_attributes(String command) {
     
     int long_boost = command.substring(breaks[2] + 1, breaks[3]).toInt();
     
-    float default_temperature = command.substring(breaks[3] + 1).toFloat();
     
     
     fsm->attributes.set_open_window_duration(open_window_durtation);
     fsm->attributes.set_offset_temperature(offset_temperature);
     fsm->attributes.set_short_boost_duration(short_boost);
     fsm->attributes.set_long_boost_duration(long_boost);
-    fsm->attributes.set_default_temperature(default_temperature);
     
     fsm->attributes.save();
     
@@ -329,8 +325,8 @@ int api_max_position() {
     return fsm->max_position();
 }
 
-int api_get_state() {
-    return fsm->current_code();
+String api_get_state() {
+    return fsm->state_name();
 }
 #endif
 
@@ -345,10 +341,16 @@ int api_state(String state) {
                 fsm->next(new Boost(fsm->attributes.get_short_boost_duration() * 60000));
             } else if (state == "long") {
                 fsm->next(new Boost(fsm->attributes.get_long_boost_duration() * 60000));
-            } else if (state == "descale") {
-                fsm->next(new Descale());
+            } else if (state == "cancel") {
+                if (fsm->current_code() == 20) {
+                    fsm->revert();
+                }
             } else if (state == "reset") {
                 System.reset(RESET_REASON_DATA_API_FUNCTION);
+            } else if (state == "safemode") {
+                System.enterSafeMode();
+            } else if (state == "dfu") {
+                System.dfu(false);
             } else {
                 return -2;
             }
@@ -368,6 +370,32 @@ void loop() {
     
     
     duration = System.millis() - start;
+    
+    //Sync the time with the cloud at 1 every day
+    //Check http://worldtimeapi.org/api/ip for DST at 1am and 2am every day
+    
+    if (Time.second() == 0 ) {
+        //Wait a second so we dont send more than one response between seconds 0-1
+        delay(1000);
+        
+        //Make a request
+        dst.send();
+        
+        //Also once a day sync the time with the particle cloud
+        if (Time.hour() == 0) {
+            Particle.syncTime();
+        }
+    }
+    
+    int r = dst.recv();
+    
+    if (r != -1) {
+        if (r == 1) {
+            Time.beginDST();
+        } else {
+            Time.endDST();
+        }
+    }
     
     fsm->update(duration);
     

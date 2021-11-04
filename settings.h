@@ -93,7 +93,7 @@ private:
     
     
 public:
-    Settings();     
+    Settings(){}    
     
     int get_open_window_duration() { return _ow_duration; }
     float get_offset_temperature() { return _offset_temperature / 10.f; }

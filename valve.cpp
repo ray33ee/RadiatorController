@@ -15,7 +15,7 @@ Valve::Valve(/*pin_t a1, int a2, int b1, int b2, int p1, int p2, int enable*/) {
     pinMode(D0, OUTPUT);
     
     //Enable the L293D driver
-    digitalWrite(D0, HIGH);
+    //digitalWrite(D0, HIGH);
     
     //Start the system deenergised
     deenergise();
@@ -39,8 +39,9 @@ Valve::Valve(/*pin_t a1, int a2, int b1, int b2, int p1, int p2, int enable*/) {
     //Push to the absolute maximum, or until the plunger stops
     push(ABSOLUTE_MAXIMUM_BLOCKS);
     
-    //This position is the new maximum
-    _max_position = position();
+    //This position is the new maximum.
+    //We subtract two because sometimes the current sensing circuit stops the plunger before it can get to this point, if the plunger is already close to it
+    _max_position = position() - 2;
     
 }
 
@@ -74,7 +75,15 @@ int Valve::delay_and_sample(int delay, int* cumulative) {
     return 0;
 }
 
+void Valve::enable_driver(bool e) {
+    digitalWrite(D0, e);
+}
+
 int Valve::push(int blocks) {
+    
+    enable_driver(true);
+    
+    noInterrupts();
     
     for (int j = 0; j < blocks; ++j) {
         
@@ -91,19 +100,27 @@ int Valve::push(int blocks) {
             delay_and_sample(STEP_DURATION, &total);
         }
         
-        if (total > PUSH_CUTOFF_TOTAL) { 
+        if (total > PUSH_CUTOFF_TOTAL) {
+            interrupts();
             deenergise();
+            enable_driver(false);
             return total;   
         }
         
         _position += 1;
     }
     
+    interrupts();
     deenergise();
+    enable_driver(false);
     return 0;
 }
 
 int Valve::retract(int blocks) {
+    
+    enable_driver(true);
+    
+    noInterrupts();
 
     for (int j = 0; j < blocks; ++j) {
         
@@ -121,7 +138,9 @@ int Valve::retract(int blocks) {
         }
         
         if (total > RETRACT_CUTOFF_TOTAL) { 
+            interrupts();
             deenergise();
+            enable_driver(false);
             return total;   
         }
         
@@ -129,10 +148,11 @@ int Valve::retract(int blocks) {
         
     }
     
+    interrupts();
     deenergise();
+    enable_driver(false);
     return 0;
 }
-
     
 //Move to the desired positions
 int Valve::setPosition(int position) {

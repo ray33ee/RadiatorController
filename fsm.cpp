@@ -9,12 +9,13 @@
 //Uncomment this line to enable debugging options
 #define __DEBUG__
 
-FSM::FSM(): led(LEDStatus()) {
+FSM::FSM() {
     current = nullptr;
     v = nullptr;
     api_enabled = true;
     api_dark = false;
     sensor = new AM2302();
+    led = nullptr;
 }
 
 void FSM::schedule_state() {
@@ -61,13 +62,13 @@ void FSM::schedule_flags() {
     
     
     
-    if ((current_entry.get_dark_mode() || api_dark) == led.isOn()) {
+    if ((current_entry.get_dark_mode() || api_dark) == led->isOn() && led->priority() <= LED_PRIORITY_NORMAL ) {
         //rgb->enable(!(current_entry.get_dark_mode() || api_dark));
         
-        if (led.isOn()) {
-            led.off();
+        if (led->isOn()) {
+            led->off();
         } else {
-            led.on();
+            led->on();
         }
         
     } 
@@ -75,6 +76,10 @@ void FSM::schedule_flags() {
     
 void FSM::check_open_window() {
     //If we detect a rapid drop in temperature, change to the open window state
+}
+
+String FSM::state_name() { 
+    return current->name();
 }
     
 /* FSM functions */
@@ -86,7 +91,9 @@ void FSM::start() {
 //Advance FSM to a new state
 void FSM::next(State* state) {
     
-    led.setActive(false);
+    led->setActive(false);
+    
+    delete led;
     
     //Call the exit function on the current state
     if (current != nullptr)
@@ -103,7 +110,7 @@ void FSM::next(State* state) {
     
     led = state->led_status();
     
-    led.setActive(true);
+    led->setActive(true);
     
     //Update the current state
     current = state;
@@ -115,7 +122,9 @@ void FSM::revert() {
     //Get the state to revert to
     State* prev = current->take_previous();
     
-    led.setActive(false);
+    led->setActive(false);
+    
+    delete led;
     
     //Call the exit function on the current state
     if (current != nullptr)
@@ -128,7 +137,7 @@ void FSM::revert() {
     
     led = prev->led_status();
     
-    led.setActive(true);
+    led->setActive(true);
     
     //Delete the current state. Since we moved the previous state out earlier, this will literally only delete the current state
     delete current;
@@ -141,12 +150,6 @@ void FSM::revert() {
     
 //Call this function within the main loop, passing the time elapsed since the last call
 void FSM::update(int elapsed) {
-    
-    if (attributes._flags.dst) {
-        Time.beginDST();
-    } else {
-        Time.endDST();
-    }
     
     current->update(this, elapsed);
 }

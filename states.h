@@ -36,7 +36,7 @@ public:
     virtual void update(FSM* fsm, int elapsed) = 0;
     
     //Called when FSM calls update, used to change LED colour
-    virtual LEDStatus led_status() = 0;
+    virtual LEDStatus* led_status() = 0;
     
     //Called before the state changes to a new one
     virtual void exit(FSM* fsm) = 0;
@@ -57,16 +57,18 @@ public:
 class Startup: public State {
     void enter(FSM* fsm);
     void update(FSM* fsm, int elapsed);
-    LEDStatus led_status();
+    LEDStatus* led_status();
     void exit(FSM* fsm);
     int code();
     String name() { return String("Startup"); }
 };
 
 class Off: public State {
+    static const int RGB_COLOUR = 0x000032FF;
+    
     void enter(FSM* fsm);
     void update(FSM* fsm, int elapsed);
-    LEDStatus led_status();
+    LEDStatus* led_status();
     void exit(FSM* fsm);
     int code();
     String name() { return String("Off"); }
@@ -76,7 +78,7 @@ class Off: public State {
 class Safe: public State {
     void enter(FSM* fsm);
     void update(FSM* fsm, int elapsed);
-    LEDStatus led_status();
+    LEDStatus* led_status();
     void exit(FSM* fsm);
     int code();
     String name() { return String("Safe"); }
@@ -85,14 +87,16 @@ class Safe: public State {
 class Boost: public State {
 private:
     int time_left;
+    bool nested;
     
 public:
+    static const int RGB_COLOUR = 0x00ff2300;
     Boost(int duration);
     int remaining();
     void move_previous(State* p);
     void enter(FSM* fsm);
     void update(FSM* fsm, int elapsed);
-    LEDStatus led_status();
+    LEDStatus* led_status();
     void exit(FSM* fsm);
     int code();
     String name() { return String("Boost"); }
@@ -103,7 +107,7 @@ public:
     void move_previous(State* p);
     void enter(FSM* fsm);
     void update(FSM* fsm, int elapsed);
-    LEDStatus led_status();
+    LEDStatus* led_status();
     void exit(FSM* fsm);
     int code();
     String name() { return String("Descale"); }
@@ -115,10 +119,12 @@ private:
     int _last_check;
     
 public:
+    static const int RGB_COLOUR = 0x00ff2300;
+    
     Regulate();
     void enter(FSM* fsm);
     void update(FSM* fsm, int elapsed);
-    LEDStatus led_status();
+    LEDStatus* led_status();
     void exit(FSM* fsm);
     int code();
     String name() { return String("Regulate"); }
@@ -136,12 +142,42 @@ public:
     String get_message() { return _message; }
     void enter(FSM* fsm);
     void update(FSM* fsm, int elapsed);
-    LEDStatus led_status();
+    LEDStatus* led_status();
     void exit(FSM* fsm);
     int code();
     String name() { return String("Panic"); }
 };
 
+class PanicStatus: public LEDStatus {
+public:
+    explicit PanicStatus(int code) :
+        LEDStatus(LED_PATTERN_CUSTOM, LED_PRIORITY_IMPORTANT),
+        _ticks(0),
+        _code(code) {
+    }
 
+protected:
+    virtual void update(system_tick_t ticks) override {
+        // Change status color every 300 milliseconds
+        _ticks += ticks;
+        
+        
+        
+        if (_ticks > _code * 400 + 1500) {
+            _ticks = 0;
+            return;
+        }
+        
+        if (_ticks % 400 < 300 || _ticks > _code * 400) {
+            setColor(0x00000000);
+        } else {
+            setColor(0x00FF0000);
+        }
+    }
+
+private:
+    system_tick_t _ticks;
+    int _code;
+};
 
 #endif

@@ -29,7 +29,6 @@ void Startup::enter(FSM* fsm) {
 
 void Startup::update(FSM* fsm, int elapsed) {
     
-    
 #ifndef __DEBUG__
     if (fsm->max_position() > 55) {
         //No Valve
@@ -53,9 +52,9 @@ void Startup::exit(FSM* fsm) {
 }
 
 
-LEDStatus Startup::led_status() {
+LEDStatus* Startup::led_status() {
     //STARTUP never updates (it immediately changes to the first state
-    return LEDStatus();
+    return new LEDStatus();
 }
 
 int Startup::code() {
@@ -97,7 +96,15 @@ int On::code() {
 /* State to close the valve */
 void Off::enter(FSM* fsm) {
     
+    
+    LEDStatus led = LEDStatus(RGB_COLOUR);
+    
+    led.setActive(true);
+    
     fsm->close_valve();
+    
+    
+    led.setActive(false);
     
     
 }
@@ -112,8 +119,8 @@ void Off::exit(FSM* fsm) {
     
 }
 
-LEDStatus Off::led_status() {
-   return  LEDStatus(0x000032FF, LED_PATTERN_FADE);
+LEDStatus* Off::led_status() {
+   return new  LEDStatus(RGB_COLOUR, LED_PATTERN_FADE);
 }
 
 int Off::code() {
@@ -128,8 +135,6 @@ void Safe::enter(FSM* fsm) {
     //Disable api calls 
     fsm->enable_api(false);
     
-    //fsm->set_led_colour(100, 100, 100);
-    
     LEDStatus led = LEDStatus(RGB_COLOR_WHITE);
     
     led.setActive(true);
@@ -137,8 +142,6 @@ void Safe::enter(FSM* fsm) {
     fsm->open_valve();
     
     led.setActive(false);
-    
-    //fsm->set_led_colour(30, 30, 30);
     
     
 }
@@ -151,8 +154,8 @@ void Safe::exit(FSM* fsm) {
     
 }
 
-LEDStatus Safe::led_status() {
-    return LEDStatus(RGB_COLOR_GRAY, LED_PATTERN_FADE);
+LEDStatus* Safe::led_status() {
+    return new LEDStatus(RGB_COLOR_GRAY, LED_PATTERN_FADE);
 }
 
 int Safe::code() {
@@ -168,16 +171,27 @@ Boost::Boost(int duration) {
 
 void Boost::move_previous(State* p) {
     previous = p;
+    nested = previous->code() == code();
 }
 
 void Boost::enter(FSM* fsm) {
 
+    LEDStatus led = LEDStatus(RGB_COLOUR);
+    
+    led.setActive(true);
     
     fsm->open_valve();
+    
+    led.setActive(false);
+    
     
 }
 
 void Boost::update(FSM* fsm, int elapsed) {
+    
+    if (nested) {
+        fsm->revert();
+    }
     
     fsm->schedule_flags();
     fsm->check_open_window();
@@ -194,8 +208,8 @@ int Boost::remaining() {
     return time_left / 1000;
 }
 
-LEDStatus Boost::led_status() {
-    return LEDStatus(0x00ff2300, LED_PATTERN_FADE);
+LEDStatus* Boost::led_status() {
+    return new LEDStatus(RGB_COLOUR, LED_PATTERN_FADE);
 }
 
 void Boost::exit(FSM* fsm) {
@@ -229,9 +243,9 @@ void Descale::update(FSM* fsm, int elapsed) {
     fsm->revert();
 }
 
-LEDStatus Descale::led_status() {
+LEDStatus* Descale::led_status() {
     //DESCALE never updates (it reverts immediately during first update) so this led status does nothing
-    return LEDStatus();
+    return new LEDStatus();
 }
 
 void Descale::exit(FSM* fsm) {
@@ -249,6 +263,29 @@ Regulate::Regulate(): _last_check(0) {
 }
 
 void Regulate::enter(FSM* fsm) {
+
+    LEDStatus led = LEDStatus(RGB_COLOUR);
+    
+    led.setActive(true);
+    
+    fsm->schedule_flags();
+    
+    int quart = Time.minute() / 15;
+    int index = (Time.weekday()-1) * 24 * 4 + Time.hour() * 4 + quart;
+    
+    float temperature = fsm->attributes.get_entry_temperature(index);
+    
+    float actual_temperature = fsm->temperature();
+    
+    if (actual_temperature < temperature) {
+        fsm->open_valve();
+    } else {
+        fsm->close_valve();
+    }
+    
+    _last_check = System.millis();
+    
+    led.setActive(false);
     
 }
 
@@ -267,11 +304,17 @@ void Regulate::update(FSM* fsm, int elapsed) {
         
         float actual_temperature = fsm->temperature();
         
-        if (actual_temperature < temperature) {
+        //Activate if temperature is less than schedule temperature-1
+        if (actual_temperature < (temperature - 1.0f)) {
             fsm->open_valve();
-        } else {
+        }
+        
+        //Deactivate if temperatureis greater than schedule temperature
+        if (actual_temperature > temperature) {
             fsm->close_valve();
         }
+        
+        //A gap  of 1 degreemeans that small fluctuations in the temperature readings will not result in rapid on/off cycles for the motor
         
         _last_check = System.millis();
     }
@@ -280,8 +323,8 @@ void Regulate::update(FSM* fsm, int elapsed) {
     
 }
 
-LEDStatus Regulate::led_status() {
-    return LEDStatus(0x00ff2300, LED_PATTERN_FADE);
+LEDStatus* Regulate::led_status() {
+    return new LEDStatus(RGB_COLOUR, LED_PATTERN_FADE);
 }
 
 void Regulate::exit(FSM* fsm) {
@@ -307,8 +350,8 @@ void Panic::update(FSM* fsm, int elapsed) {
     
 }
 
-LEDStatus Panic::led_status() {
-    return LEDStatus(RGB_COLOR_RED, LED_PATTERN_FADE);
+LEDStatus* Panic::led_status() {
+    return new PanicStatus(_code);
 }
 
 void Panic::exit(FSM* fsm) {

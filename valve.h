@@ -22,10 +22,10 @@ private:
     static const int ABSOLUTE_MAXIMUM_BLOCKS = 60;
 
     //If the cumulative total of all the differential pair values exceeds this value when pushing, stop the motor
-    static const int PUSH_CUTOFF_TOTAL = 8000;
+    static const int PUSH_CUTOFF_TOTAL = 5500;
     
     //If the cumulative total of all the differential pair values exceeds this value when retracting, stop the motor
-    static const int RETRACT_CUTOFF_TOTAL = 8000;
+    static const int RETRACT_CUTOFF_TOTAL = 5500;
     
     /* Pin definitions */
     
@@ -56,6 +56,9 @@ private:
     
     //Set the driver input values
     void set_coils(int a1, int a2, int b1, int b2);
+    
+    //Set or reset the driver enable pin
+    void enable_driver(bool e);
 
     //Deenergise coils
     void deenergise();

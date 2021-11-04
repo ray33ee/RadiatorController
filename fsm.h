@@ -22,7 +22,7 @@ private:
     Valve* v;
     
     //RGB_Base* rgb;
-    LEDStatus led;
+    LEDStatus* led;
     
     bool api_enabled;
     
@@ -52,7 +52,7 @@ public:
     State* get_current() { return current; }
     
     void panic(int code, String message);
-    
+
     //Call this function within the main loop, passing the time elapsed since the last call
     void update(int elapsed);
     
@@ -61,6 +61,8 @@ public:
     void schedule_flags();
     
     void check_open_window();
+    
+    String state_name();
     
     /* Cloud API access */
     
