@@ -5,16 +5,31 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 ### To Do
+  - Connect pin 1 of LED to Vcc, not GND to fix LED polarity issue
+  - Add test points accross `R1`
   - Add states:
     - Open Window: A rapid drop in temperature will cause the device to close the valves to save money for a specified duration. Must save previous state to return to
-  - Use `onChange` handler to mimic RGB led on external LED
+  - Add variable for Time DST
+  - Boost mode gets its own led color and a high priority (i.e. ignores darkmode)
 
 ### Unfinished Ideas
 - 
 
+## [0.1.17] - 2021-11-04
+### Added
+- Modifications to accomidate new Front/Side/Top PCBs
+- Dummy temperature sensor as AM2302 is not compatible with Front/Top/Side PCBs
+- Test push and retract functions added to help calibrate current sensing circuit 
+- Added pins and led handler for external LED
+
+### Changed
+- Changed pin definitions for coil driver, driver enable and current sensing circuit
+- Changed current detect threshold algorithm for new circuit boards
+- Changed block size from 10 to 15, since there was an overlap at 10
+
 ## [0.1.16] - 2021-11-02
 ### Added
-- In `Panic` state, we noq flash the LED red `Panic::_code` number of times to indicate error code
+- In `Panic` state, we now flash the LED red `Panic::_code` number of times to indicate error code
 - A boost will revert if its previous stats is also a boost (this prevents nested boosts)
 - Can now change the default temperature on its own without having to change the other values
 - DFU and safe mode now available via api state change function

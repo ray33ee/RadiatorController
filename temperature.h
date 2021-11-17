@@ -52,4 +52,17 @@ public:
     
 };
 
+class Dummy: public TemperatureSensor {
+
+    
+public:
+
+    Dummy() {}
+    
+    int open() { return 0; }
+    
+    float temperature() { return 20.0f; }
+    
+};
+
 #endif

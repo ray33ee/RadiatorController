@@ -19,13 +19,13 @@ private:
     static const int STEP_DURATION = 1200;
     
     //Absolute Maximum number of blocks (form a fully retracted position) exceeding this may damage enclosure
-    static const int ABSOLUTE_MAXIMUM_BLOCKS = 60;
+    static const int ABSOLUTE_MAXIMUM_BLOCKS = 40;
 
     //If the cumulative total of all the differential pair values exceeds this value when pushing, stop the motor
-    static const int PUSH_CUTOFF_TOTAL = 5500;
+    static const int PUSH_CUTOFF_TOTAL = 18750;
     
     //If the cumulative total of all the differential pair values exceeds this value when retracting, stop the motor
-    static const int RETRACT_CUTOFF_TOTAL = 5500;
+    static const int RETRACT_CUTOFF_TOTAL = 18750;
     
     /* Pin definitions */
     
@@ -92,6 +92,9 @@ public:
     int open_valve();
     
     int close_valve();
+    
+    int test_push(int);
+    int test_retract(int);
     
 };
 

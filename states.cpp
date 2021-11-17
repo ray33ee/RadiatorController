@@ -37,11 +37,12 @@ void Startup::update(FSM* fsm, int elapsed) {
     }
 #endif
     
+    /*
     if (fsm->max_position() < 5) {
         //Plunger stuck
         fsm->next(new Panic(2, String("Plunger only moved a small amount before over-current detection kicked in. (This happens occasionally, please fix. In meantime just reset the device until it works)")));
         return;
-    }
+    }*/
     
     //Change to the state according to the schedule
     fsm->schedule_state();

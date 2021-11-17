@@ -8,11 +8,12 @@ Valve::Valve(/*pin_t a1, int a2, int b1, int b2, int p1, int p2, int enable*/) {
     /* Initialise pins */
     
     //Setup the control pins
-    pinMode(D1, OUTPUT);
-    pinMode(D2, OUTPUT);
-    pinMode(D3, OUTPUT);
-    pinMode(D4, OUTPUT);
-    pinMode(D0, OUTPUT);
+    pinMode(A5, OUTPUT);
+    pinMode(A3, OUTPUT);
+    pinMode(A2, OUTPUT);
+    pinMode(DAC, OUTPUT);
+    
+    pinMode(RX, OUTPUT);
     
     //Enable the L293D driver
     //digitalWrite(D0, HIGH);
@@ -48,10 +49,10 @@ Valve::Valve(/*pin_t a1, int a2, int b1, int b2, int p1, int p2, int enable*/) {
 //Set the driver input values
 void Valve::set_coils(int a1, int a2, int b1, int b2) {
     
-    digitalWrite(D1, a1);
-    digitalWrite(D2, a2);
-    digitalWrite(D3, b1);
-    digitalWrite(D4, b2);
+    digitalWrite(A5, a1);
+    digitalWrite(A3, a2);
+    digitalWrite(A2, b1);
+    digitalWrite(DAC, b2);
     
 }
 
@@ -62,8 +63,8 @@ void Valve::deenergise() {
 int Valve::delay_and_sample(int delay, int* cumulative) {
     int start = micros();
     
-    int p1 = analogRead(A0);
-    int p2 = analogRead(A1);
+    int p1 = analogRead(A1);
+    int p2 = analogRead(A0);
     int diff = p2 - p1;
     
     *cumulative += diff;
@@ -76,44 +77,7 @@ int Valve::delay_and_sample(int delay, int* cumulative) {
 }
 
 void Valve::enable_driver(bool e) {
-    digitalWrite(D0, e);
-}
-
-int Valve::push(int blocks) {
-    
-    enable_driver(true);
-    
-    noInterrupts();
-    
-    for (int j = 0; j < blocks; ++j) {
-        
-        int total = 0;
-        
-        for (int i = 0; i < 10; ++i) {
-            set_coils(1, 0, 1, 0);
-            delay_and_sample(STEP_DURATION, &total);
-            set_coils(0, 1, 1, 0);
-            delay_and_sample(STEP_DURATION, &total);
-            set_coils(0, 1, 0, 1);
-            delay_and_sample(STEP_DURATION, &total);
-            set_coils(1, 0, 0, 1);
-            delay_and_sample(STEP_DURATION, &total);
-        }
-        
-        if (total > PUSH_CUTOFF_TOTAL) {
-            interrupts();
-            deenergise();
-            enable_driver(false);
-            return total;   
-        }
-        
-        _position += 1;
-    }
-    
-    interrupts();
-    deenergise();
-    enable_driver(false);
-    return 0;
+    digitalWrite(RX, e);
 }
 
 int Valve::retract(int blocks) {
@@ -121,12 +85,49 @@ int Valve::retract(int blocks) {
     enable_driver(true);
     
     noInterrupts();
+    
+    for (int j = 0; j < blocks; ++j) {
+        
+        int total = 0;
+        
+        for (int i = 0; i < 15; ++i) {
+            set_coils(1, 0, 1, 0);
+            delay_and_sample(STEP_DURATION, &total);
+            set_coils(0, 1, 1, 0);
+            delay_and_sample(STEP_DURATION, &total);
+            set_coils(0, 1, 0, 1);
+            delay_and_sample(STEP_DURATION, &total);
+            set_coils(1, 0, 0, 1);
+            delay_and_sample(STEP_DURATION, &total);
+        }
+        
+        if (total < PUSH_CUTOFF_TOTAL) {
+            interrupts();
+            deenergise();
+            enable_driver(false);
+            return total;   
+        }
+        
+        _position -= 1;
+    }
+    
+    interrupts();
+    deenergise();
+    enable_driver(false);
+    return 0;
+}
+
+int Valve::push(int blocks) {
+    
+    enable_driver(true);
+    
+    noInterrupts();
 
     for (int j = 0; j < blocks; ++j) {
         
         int total = 0;
         
-        for (int i = 0; i < 10; ++i) {
+        for (int i = 0; i < 15; ++i) {
             set_coils(1, 0, 0, 1);
             delay_and_sample(STEP_DURATION, &total);
             set_coils(0, 1, 0, 1);
@@ -137,14 +138,14 @@ int Valve::retract(int blocks) {
             delay_and_sample(STEP_DURATION, &total);
         }
         
-        if (total > RETRACT_CUTOFF_TOTAL) { 
+        if (total < RETRACT_CUTOFF_TOTAL) { 
             interrupts();
             deenergise();
             enable_driver(false);
             return total;   
         }
         
-        _position -= 1;
+        _position += 1;
         
     }
     
@@ -152,6 +153,62 @@ int Valve::retract(int blocks) {
     deenergise();
     enable_driver(false);
     return 0;
+}
+
+int Valve::test_retract(int blocks) {
+    enable_driver(true);
+    
+    noInterrupts();
+
+    
+    int total = 0;
+    
+    for (int j = 0; j < blocks; ++j) {
+        for (int i = 0; i < 15; ++i) {
+            set_coils(1, 0, 1, 0);
+            delay_and_sample(STEP_DURATION, &total);
+            set_coils(0, 1, 1, 0);
+            delay_and_sample(STEP_DURATION, &total);
+            set_coils(0, 1, 0, 1);
+            delay_and_sample(STEP_DURATION, &total);
+            set_coils(1, 0, 0, 1);
+            delay_and_sample(STEP_DURATION, &total);
+        }
+    }
+    
+    interrupts();
+    deenergise();
+    enable_driver(false);
+    
+    return total;
+}
+
+int Valve::test_push(int blocks) {
+    enable_driver(true);
+    
+    noInterrupts();
+
+    
+    int total = 0;
+
+    for (int j = 0; j < blocks; ++j) {
+        for (int i = 0; i < 15; ++i) {
+            set_coils(1, 0, 0, 1);
+            delay_and_sample(STEP_DURATION, &total);
+            set_coils(0, 1, 0, 1);
+            delay_and_sample(STEP_DURATION, &total);
+            set_coils(0, 1, 1, 0);
+            delay_and_sample(STEP_DURATION, &total);
+            set_coils(1, 0, 1, 0);
+            delay_and_sample(STEP_DURATION, &total);
+        }
+    }
+    
+    interrupts();
+    deenergise();
+    enable_driver(false);
+    
+    return total;
 }
     
 //Move to the desired positions

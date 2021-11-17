@@ -19,12 +19,27 @@ long start = 0;
 //Define custom reset reasons
 const uint32_t RESET_REASON_DATA_API_FUNCTION = 1;
 
+void external_led(uint8_t r, uint8_t g, uint8_t b) {
+    analogWrite(WKP, 255-r);
+    analogWrite(A4, 255-g);
+    analogWrite(D2, 255-b);
+}
+
 void setup() {
     System.enableFeature(FEATURE_RESET_INFO);
+    
+    
+    pinMode(WKP, OUTPUT);
+    pinMode(A4, OUTPUT);
+    pinMode(D2, OUTPUT);
+    
+    RGB.onChange(external_led); 
+    
     
     fsm = new FSM();
     
     fsm->start();
+    
     
     Particle.function("set_state", api_state);
     
@@ -38,6 +53,9 @@ void setup() {
     Particle.function("modify_flags", api_modify_flags);
     
     Particle.function("default_temperature", default_temperature);
+    
+    Particle.function("test_push", api_push);
+    Particle.function("test_retract", api_retract);
     
     Particle.variable("boost_remaining", boost_remaining);
     
@@ -66,6 +84,14 @@ void setup() {
     
     fsm->initial_free_memory = System.freeMemory();
     
+}
+
+int api_push(String command) {
+    return fsm->test_push(command.toInt());
+}
+
+int api_retract(String command) {
+    return fsm->test_retract(command.toInt());
 }
 
 String reset_reason() {

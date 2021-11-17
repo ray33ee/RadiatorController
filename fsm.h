@@ -89,6 +89,9 @@ public:
     //Fully close valve
     int close_valve();
     
+    int test_push(int blocks) { return v->test_push(blocks); }
+    int test_retract(int blocks) { return v->test_retract(blocks); }
+    
 #ifdef __DEBUG__
     //Get the position of the motor
     int position();
