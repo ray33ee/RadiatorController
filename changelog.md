@@ -6,14 +6,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 ### To Do
   - Connect pin 1 of LED to Vcc, not GND to fix LED polarity issue
-  - Add test points accross `R1`
+  - Re arrange the pins on the JST connector on the top board so that the colours on the wires match the pins (red for Vcc, black for GND and yellow and white for SCL and SDA)
+  - Add test points accross `R1`, and anywhere else they might be useful.
+  - Bring out all unused pins on Photon
   - Add states:
-    - Open Window: A rapid drop in temperature will cause the device to close the valves to save money for a specified duration. Must save previous state to return to
+    - Open Window: A rapid drop in temperature will cause the device to close the valves to save money for a specified duration. Must save previous state to return to (LED color 0x00FF001E 255, 0, 30)
+
   - Add variable for Time DST
   - Boost mode gets its own led color and a high priority (i.e. ignores darkmode)
 
 ### Unfinished Ideas
-- 
+-  
+
+## [0.1.18] - 2021-11-17
+### Changed
+- Regulate LED color changed to a yellow-orange, Boost color changed to a red-orange to distinguish states
+- Temporarily back to using AM2302
+- Modified max position and minimum position constraints
+- AM2302 data pin changed to D0 (as this this pin is brought out to the top board)
 
 ## [0.1.17] - 2021-11-04
 ### Added

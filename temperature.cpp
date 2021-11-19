@@ -10,13 +10,14 @@ BME280::BME280() {
 }
 
 int BME280::open() {
-    
     return 0;
 }
 
 float BME280::temperature() {
     
     return -1.0f;
+    
+    
 }
 
 

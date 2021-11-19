@@ -41,6 +41,7 @@ void setup() {
     fsm->start();
     
     
+    Particle.function("led", api_led);
     Particle.function("set_state", api_state);
     
     Particle.function("dark_mode", api_temp_dark);
@@ -84,6 +85,16 @@ void setup() {
     
     fsm->initial_free_memory = System.freeMemory();
     
+}
+
+int api_led(String command) {
+    //RRR GGG BBB
+    
+    RGB.control(true);
+    
+    RGB.color(command.substring(0, 3).toInt(), command.substring(4, 7).toInt(), command.substring(8, 11).toInt());
+    
+    return 0;
 }
 
 int api_push(String command) {

@@ -38,7 +38,7 @@ private:
     uint64_t _last_sample_time; //Last time the temperature was taken. Given in milliseconds since device was last reset. See System.millis() for more info
     float _last_temperature;
     
-    const int DATA_PIN = D6;
+    const int DATA_PIN = D0;
     
     
     

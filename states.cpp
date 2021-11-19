@@ -30,19 +30,19 @@ void Startup::enter(FSM* fsm) {
 void Startup::update(FSM* fsm, int elapsed) {
     
 #ifndef __DEBUG__
-    if (fsm->max_position() > 55) {
+    if (fsm->max_position() > 37) {
         //No Valve
         fsm->next(new Panic(1, String("No valve detected. Make sure controller is fitted properly.")));
         return;
     }
 #endif
     
-    /*
-    if (fsm->max_position() < 5) {
+    
+    if (fsm->max_position() < 3) {
         //Plunger stuck
         fsm->next(new Panic(2, String("Plunger only moved a small amount before over-current detection kicked in. (This happens occasionally, please fix. In meantime just reset the device until it works)")));
         return;
-    }*/
+    }
     
     //Change to the state according to the schedule
     fsm->schedule_state();

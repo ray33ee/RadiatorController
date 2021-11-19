@@ -90,7 +90,7 @@ private:
     bool nested;
     
 public:
-    static const int RGB_COLOUR = 0x00ff2300;
+    static const int RGB_COLOUR = 0x00ff1400;
     Boost(int duration);
     int remaining();
     void move_previous(State* p);
@@ -119,7 +119,7 @@ private:
     int _last_check;
     
 public:
-    static const int RGB_COLOUR = 0x00ff2300;
+    static const int RGB_COLOUR = 0x00ff3c00;
     
     Regulate();
     void enter(FSM* fsm);

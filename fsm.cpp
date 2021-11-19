@@ -14,7 +14,7 @@ FSM::FSM() {
     v = nullptr;
     api_enabled = true;
     api_dark = false;
-    sensor = new Dummy();
+    sensor = new AM2302();
     led = nullptr;
 }
 

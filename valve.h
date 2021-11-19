@@ -22,10 +22,10 @@ private:
     static const int ABSOLUTE_MAXIMUM_BLOCKS = 40;
 
     //If the cumulative total of all the differential pair values exceeds this value when pushing, stop the motor
-    static const int PUSH_CUTOFF_TOTAL = 18750;
+    static const int PUSH_CUTOFF_TOTAL = 13300;
     
     //If the cumulative total of all the differential pair values exceeds this value when retracting, stop the motor
-    static const int RETRACT_CUTOFF_TOTAL = 18750;
+    static const int RETRACT_CUTOFF_TOTAL = 13300;
     
     /* Pin definitions */
     
