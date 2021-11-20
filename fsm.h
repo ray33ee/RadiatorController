@@ -89,6 +89,8 @@ public:
     //Fully close valve
     int close_valve();
     
+    int learn_test() { return v->learn(); }
+    
     int test_push(int blocks) { return v->test_push(blocks); }
     int test_retract(int blocks) { return v->test_retract(blocks); }
     

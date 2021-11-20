@@ -52,6 +52,8 @@ private:
     //The learned maximum position
     int _max_position;
     
+    int current_cutoff;
+    
     /* Low level functions */
     
     //Set the driver input values
@@ -93,8 +95,14 @@ public:
     
     int close_valve();
     
-    int test_push(int);
-    int test_retract(int);
+    int push_block(int blocks);
+    int retract_block(int blocks);
+    
+    //Figure out the current cutoff boundary
+    int learn();
+    
+    int test_push(int blocks);
+    int test_retract(int blocks);
     
 };
 

@@ -16,7 +16,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Boost mode gets its own led color and a high priority (i.e. ignores darkmode)
 
 ### Unfinished Ideas
--  
+- Would be nice to be able to connect the external LED to the pads on the photon board, how easy would this be to design/solder?
+
+## [0.1.19] - 2021-11-19
+### Added
+- `Valve::learn` which alrogithmically gets the current cutoff for the motor. Before we were using a hard coded constant, but this was changing too often to be a constant.
+  So an algorithm was developed to get the values for the running current and stalling current, then takes the mid point as the cutoff. It does so by repeatedly pushing and
+  retracting until we have current values that are large enough apart that we can be sure they represent the running and stalling current values.
 
 ## [0.1.18] - 2021-11-17
 ### Changed

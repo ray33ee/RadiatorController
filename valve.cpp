@@ -31,6 +31,8 @@ Valve::Valve(/*pin_t a1, int a2, int b1, int b2, int p1, int p2, int enable*/) {
     
     /* Startup sequence */
     
+    current_cutoff = learn();
+    
     //Retract fully or until the plunger bottoms out. This garuntees that after this call, the plunger will be at position 0
     retract(ABSOLUTE_MAXIMUM_BLOCKS);
     
@@ -101,7 +103,7 @@ int Valve::retract(int blocks) {
             delay_and_sample(STEP_DURATION, &total);
         }
         
-        if (total < PUSH_CUTOFF_TOTAL) {
+        if (total < current_cutoff) {
             interrupts();
             deenergise();
             enable_driver(false);
@@ -138,7 +140,7 @@ int Valve::push(int blocks) {
             delay_and_sample(STEP_DURATION, &total);
         }
         
-        if (total < RETRACT_CUTOFF_TOTAL) { 
+        if (total < current_cutoff) { 
             interrupts();
             deenergise();
             enable_driver(false);
@@ -155,61 +157,126 @@ int Valve::push(int blocks) {
     return 0;
 }
 
+int Valve::retract_block(int blocks) {
+    
+    int total = 0;
+    
+    for (int j = 0; j < blocks; ++j) {
+        for (int i = 0; i < 15; ++i) {
+            set_coils(1, 0, 1, 0);
+            delay_and_sample(STEP_DURATION, &total);
+            set_coils(0, 1, 1, 0);
+            delay_and_sample(STEP_DURATION, &total);
+            set_coils(0, 1, 0, 1);
+            delay_and_sample(STEP_DURATION, &total);
+            set_coils(1, 0, 0, 1);
+            delay_and_sample(STEP_DURATION, &total);
+        }
+    }
+    
+    return total;
+}
+
+int Valve::push_block(int blocks) {
+    
+    int total = 0;
+
+    for (int j = 0; j < blocks; ++j) {
+        for (int i = 0; i < 15; ++i) {
+            set_coils(1, 0, 0, 1);
+            delay_and_sample(STEP_DURATION, &total);
+            set_coils(0, 1, 0, 1);
+            delay_and_sample(STEP_DURATION, &total);
+            set_coils(0, 1, 1, 0);
+            delay_and_sample(STEP_DURATION, &total);
+            set_coils(1, 0, 1, 0);
+            delay_and_sample(STEP_DURATION, &total);
+        }
+    }
+    
+    return total;
+}
+
+int Valve::learn() {
+    
+    //Basically we just push/retract until we have current totals far enough apart that we can be confident that between them is the current cutoff
+    
+    
+    enable_driver(true);
+    
+    noInterrupts();
+
+    int push_average = push_block(1);
+    deenergise();
+    delay(50);  
+    
+    retract_block(1);
+    deenergise();
+    delay(50);  
+    
+    int retract_average = retract_block(1);
+    deenergise();
+    delay(50);  
+    
+    int middle = (float)(push_average + retract_average) / 2.0f;
+    
+    int diff = push_average - retract_average;
+    
+    if (abs(diff) < 2000) {
+        
+        //Keep retracting until..
+        
+        for (int i = 0; i < 50; ++i) {
+            
+            int retract = retract_block(1);
+            
+            int diff = middle - retract;
+            
+            if (abs(diff) > 2000) {
+                
+                middle = (float)(retract + middle) / 2.0f;
+                break;
+                
+            }
+            
+        }
+        
+    }
+    
+    interrupts();
+    deenergise();
+    enable_driver(false);
+    
+    return middle;
+}
+    
+int Valve::test_push(int blocks) {
+    
+    enable_driver(true);
+    
+    noInterrupts();
+    
+    int total = push_block(blocks);
+    
+    interrupts();
+    deenergise();
+    enable_driver(false);
+    return total;
+}
+
 int Valve::test_retract(int blocks) {
     enable_driver(true);
     
     noInterrupts();
-
     
-    int total = 0;
-    
-    for (int j = 0; j < blocks; ++j) {
-        for (int i = 0; i < 15; ++i) {
-            set_coils(1, 0, 1, 0);
-            delay_and_sample(STEP_DURATION, &total);
-            set_coils(0, 1, 1, 0);
-            delay_and_sample(STEP_DURATION, &total);
-            set_coils(0, 1, 0, 1);
-            delay_and_sample(STEP_DURATION, &total);
-            set_coils(1, 0, 0, 1);
-            delay_and_sample(STEP_DURATION, &total);
-        }
-    }
+    int total = retract_block(blocks);
     
     interrupts();
     deenergise();
     enable_driver(false);
-    
     return total;
 }
 
-int Valve::test_push(int blocks) {
-    enable_driver(true);
-    
-    noInterrupts();
-
-    
-    int total = 0;
-
-    for (int j = 0; j < blocks; ++j) {
-        for (int i = 0; i < 15; ++i) {
-            set_coils(1, 0, 0, 1);
-            delay_and_sample(STEP_DURATION, &total);
-            set_coils(0, 1, 0, 1);
-            delay_and_sample(STEP_DURATION, &total);
-            set_coils(0, 1, 1, 0);
-            delay_and_sample(STEP_DURATION, &total);
-            set_coils(1, 0, 1, 0);
-            delay_and_sample(STEP_DURATION, &total);
-        }
-    }
-    
-    interrupts();
-    deenergise();
-    enable_driver(false);
-    
-    return total;
-}
     
 //Move to the desired positions
 int Valve::setPosition(int position) {

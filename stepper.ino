@@ -82,9 +82,23 @@ void setup() {
     
     Particle.function("test", api_test);
     
+    Particle.function("learn", api_learn);
+    
     
     fsm->initial_free_memory = System.freeMemory();
     
+}
+
+int api_push(String command) {
+    return fsm->test_push(command.toInt());
+}
+
+int api_retract(String command) {
+    return fsm->test_retract(command.toInt());
+}
+
+int api_learn(String command) {
+    return fsm->learn_test();
 }
 
 int api_led(String command) {
@@ -95,14 +109,6 @@ int api_led(String command) {
     RGB.color(command.substring(0, 3).toInt(), command.substring(4, 7).toInt(), command.substring(8, 11).toInt());
     
     return 0;
-}
-
-int api_push(String command) {
-    return fsm->test_push(command.toInt());
-}
-
-int api_retract(String command) {
-    return fsm->test_retract(command.toInt());
 }
 
 String reset_reason() {
